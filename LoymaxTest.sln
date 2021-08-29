@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30907.101
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoymaxTest", "LoymaxTest\LoymaxTest.csproj", "{E63604D9-F415-480C-B4A0-F14EB58E5ED4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data", "Data\Data.csproj", "{1E3B0584-A187-4435-A96A-8C554EC605B8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "Services\Services.csproj", "{68880CA0-66FD-4457-BFFD-14CA6FD1F878}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E63604D9-F415-480C-B4A0-F14EB58E5ED4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E63604D9-F415-480C-B4A0-F14EB58E5ED4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E63604D9-F415-480C-B4A0-F14EB58E5ED4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E63604D9-F415-480C-B4A0-F14EB58E5ED4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E3B0584-A187-4435-A96A-8C554EC605B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E3B0584-A187-4435-A96A-8C554EC605B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E3B0584-A187-4435-A96A-8C554EC605B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E3B0584-A187-4435-A96A-8C554EC605B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68880CA0-66FD-4457-BFFD-14CA6FD1F878}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68880CA0-66FD-4457-BFFD-14CA6FD1F878}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68880CA0-66FD-4457-BFFD-14CA6FD1F878}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68880CA0-66FD-4457-BFFD-14CA6FD1F878}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F96ECFF5-459F-4D00-82D6-A795D7A251D2}
+	EndGlobalSection
+EndGlobal
