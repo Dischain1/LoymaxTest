@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 
 namespace LoymaxTest.Controllers
 {
@@ -12,6 +13,19 @@ namespace LoymaxTest.Controllers
         public AccountController(ILogger<AccountController> logger)
         {
             _logger = logger;
+        }
+
+        [HttpPost]
+        public int Account()
+        {
+            throw new NotImplementedException();
+
+        }
+
+        [HttpGet]
+        public decimal Balance()
+        {
+            throw new NotImplementedException();
         }
     }
 }

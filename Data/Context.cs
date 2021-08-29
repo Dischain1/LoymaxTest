@@ -3,8 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Data
 {
-    public class FinancialAccountsContext : DbContext
+    public class LoymaxTestContext : DbContext
     {
         public DbSet<Account> Accounts { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
     }
 }
