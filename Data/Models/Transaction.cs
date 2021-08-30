@@ -15,6 +15,10 @@ namespace Data.Models
         public int Type { get; set; }
         public decimal Amount { get; set; }
 
+        [ForeignKey("Account")]
+        public int AccountId { get; set; }
+        public virtual Account Account { get; set; }
+
         public TransactionType GetTransactionType() => (TransactionType)Type;
     }
 }

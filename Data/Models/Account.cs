@@ -1,10 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Data.Models
 {
     public class Account
     {
+        public Account()
+        {
+            this.Transactions = new HashSet<Transaction>();
+        }
+
         [Key]
         public int Id { get; set; }
         public DateTime RegistrationDate { get; set; }
@@ -21,5 +27,7 @@ namespace Data.Models
         public string Panronimic { get; set; }
 
         public DateTime DateOfBirth { get; set; }
+
+        public virtual ICollection<Transaction> Transactions { get; set; }
     }
 }
