@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Data.Models
+namespace LoymaxTest.Models
 {
     public class AddAccountModel
     {

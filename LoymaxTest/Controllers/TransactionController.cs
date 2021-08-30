@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Data.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Services.Transactions;
 using System;
+using System.Linq;
 
 namespace LoymaxTest.Controllers
 {
@@ -22,16 +24,32 @@ namespace LoymaxTest.Controllers
 
         [HttpPost]
         [Route("Deposit")]
-        public decimal Deposit()
+        public void Deposit(TransactionBaseModel model)
         {
-            throw new NotImplementedException();
+            if (!ModelState.IsValid)
+            {
+                var errorsText = ModelState.JoinErrors();
+                _logger.LogError(errorsText);
+                throw new ArgumentException(errorsText, nameof(model));
+            }
+
+            // ToDo model & validation & logging
+            _transactionService.Deposit();
         }
 
         [HttpPost]
         [Route("Withdrawal")]
-        public decimal Withdrawal()
+        public void Withdrawal(TransactionBaseModel model)
         {
-            throw new NotImplementedException();
+            if (!ModelState.IsValid)
+            {
+                var errorsText = ModelState.JoinErrors();
+                _logger.LogError(errorsText);
+                throw new ArgumentException(errorsText, nameof(model));
+            }
+
+            // ToDo model & validation & logging
+            _transactionService.Withdraw();
         }
     }
 }

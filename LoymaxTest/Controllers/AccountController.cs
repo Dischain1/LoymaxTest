@@ -1,10 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using LoymaxTest.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Logging;
 using Services.Accounts;
+using Services.Accounts.Models;
 using System;
+using System.Linq;
 
 namespace LoymaxTest.Controllers
 {
+    // ToDo logging
+
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
@@ -21,15 +27,27 @@ namespace LoymaxTest.Controllers
         }
 
         [HttpPost]
-        public int Account()
+        public int Account(AddAccountModel model)
         {
-            throw new NotImplementedException();
+            if (!ModelState.IsValid)
+            {
+                var errorsText = ModelState.JoinErrors();
+                _logger.LogError(errorsText);
+                throw new ArgumentException(errorsText, nameof(model));
+            }
+
+            //ToDo automapper maybe?
+            var addAccountDto = new AddAccountDto();
+
+            return _accountService.AddAccount(addAccountDto);
         }
 
         [HttpGet]
-        public decimal Balance()
+        public decimal Balance(int accountId)
         {
-            throw new NotImplementedException();
+
+
+            return _accountService.GetBalance(accountId);
         }
     }
 }

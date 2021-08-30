@@ -1,3 +1,4 @@
+using Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,8 @@ namespace LoymaxTest
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<LoymaxTestContext>();
+
             services.AddScoped<ITransactionService, TransactionService>();
             services.AddScoped<IAccountService, AccountService>();
 

@@ -1,4 +1,5 @@
-﻿using Services.Transactions;
+﻿using Data;
+using Services.Transactions;
 using Services.Transactions.Models;
 using System;
 
@@ -6,9 +7,11 @@ namespace Services
 {
     public class TransactionService : ITransactionService
     {
-        public TransactionService()
-        {
+        LoymaxTestContext _context;
 
+        public TransactionService(LoymaxTestContext context)
+        {
+            _context = context;
         }
 
         public DepositFeedback Deposit()
