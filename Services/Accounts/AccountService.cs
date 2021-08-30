@@ -12,7 +12,7 @@ namespace Services
 {
     public class AccountService : IAccountService
     {
-        LoymaxTestContext _context;
+        private readonly LoymaxTestContext _context;
 
         public AccountService(LoymaxTestContext context)
         {

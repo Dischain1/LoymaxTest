@@ -11,10 +11,14 @@ namespace Services
     public class TransactionService : ITransactionService
     {
         private readonly LoymaxTestContext _context;
+        private readonly ITransactionValidator _transactionValidator;
 
-        public TransactionService(LoymaxTestContext context)
+        public TransactionService(LoymaxTestContext context,
+            ITransactionValidator transactionValidator
+            )
         {
             _context = context;
+            _transactionValidator = transactionValidator;
         }
 
         public TransactionResult AddTransaction(AddTransactionDto transactionDto)
@@ -24,14 +28,26 @@ namespace Services
                 Type = (int)transactionDto.Type,
                 AccountId = transactionDto.AccountId,
                 Amount = transactionDto.Amount,
-                Date = DateTime.Now.ToUniversalTime()
             };
 
             try
             {
+                // Validation and adding Account's transaction should be one EF transaction. 
+                // Any new Account's transactions can affect correctness of validation result
                 using var transaction = _context.Database.BeginTransaction(IsolationLevel.RepeatableRead);
-                _context.Transactions.Add(transactionEntity);
-                transaction.Commit();
+                var validationResult = _transactionValidator.ValidateTransaction(transactionDto);
+
+                if (validationResult.Valid)
+                {
+                    _context.Transactions.Add(transactionEntity);
+                    _context.SaveChanges();
+                    transaction.Commit();
+                }
+                else
+                {
+                    transaction.Rollback();
+                    return TransactionResult.CreateFailedResult(validationResult.Errors);
+                }
 
                 return TransactionResult.CreateSuccededResult();
             }

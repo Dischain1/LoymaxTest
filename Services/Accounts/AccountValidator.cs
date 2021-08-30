@@ -11,9 +11,9 @@ namespace Services
         public ValidationReslut Validate(AddAccountDto addAccountDto)
         {
             if (addAccountDto.DateOfBirth > latestDateOfBirthRestricted)
-                return ValidationReslut.Create().AddError("User must be 18 years old or over to be registered");
+                return ValidationReslut.ValidResult().AddError("User must be 18 years old or over to be registered");
 
-            return ValidationReslut.Create();
+            return ValidationReslut.ValidResult();
         }
     }
 }

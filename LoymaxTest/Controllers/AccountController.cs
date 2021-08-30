@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Services.Accounts;
 using Services.Accounts.Models;
+using Services.Common;
 
 namespace LoymaxTest.Controllers
 {
@@ -60,7 +61,7 @@ namespace LoymaxTest.Controllers
         {
             if (!_accountService.AccountExist(accountId))
             {
-                _logger.LogError($"Balance of non-existent account is requested. Account Id: {accountId}");
+                _logger.LogError($"Error occured on getting Balance. {ErrorMessages.AccountDoesNotExist(accountId)}");
                 return BalanceOfNotFoundAccount;
             }
 

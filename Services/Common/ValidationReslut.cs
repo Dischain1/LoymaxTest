@@ -10,12 +10,19 @@ namespace Services
         public bool Valid => !_errors.Any();
         public string Errors => string.Join(" | ", _errors);
 
-        protected ValidationReslut()
+        private ValidationReslut()
         {
             _errors = new List<string>();
         }
 
-        public static ValidationReslut Create() => new ValidationReslut();
+        private ValidationReslut(string error)
+        {
+            _errors = new List<string> { error };
+        }
+
+        public static ValidationReslut ValidResult() => new ValidationReslut();
+        public static ValidationReslut NotValidResult(string error) => new ValidationReslut(error);
+
 
         public ValidationReslut AddError(string error)
         {

@@ -15,15 +15,12 @@ namespace LoymaxTest.Controllers
     {
         private readonly ITransactionService _transactionService;
         private readonly ILogger<TransactionController> _logger;
-        private readonly ITransactionValidator _transactionValidator; // ??? here or in ITransactionService ???
 
         public TransactionController(ILogger<TransactionController> logger,
-            ITransactionService transactionService,
-            ITransactionValidator transactionValidator)
+            ITransactionService transactionService)
         {
             _logger = logger;
             _transactionService = transactionService;
-            _transactionValidator = transactionValidator;
         }
 
         // ToDo automapper
