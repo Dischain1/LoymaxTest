@@ -25,14 +25,17 @@ namespace Data
                     .HasColumnType("datetime2");
 
                 b.Property<string>("FirstName")
-                    .HasColumnType("nvarchar(50)")
-                    .IsRequired();
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnType("nvarchar(50)");
 
                 b.Property<string>("LastName")
-                    .HasColumnType("nvarchar(50)")
-                    .IsRequired();
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnType("nvarchar(50)");
 
                 b.Property<string>("Panronimic")
+                    .HasMaxLength(50)
                     .HasColumnType("nvarchar(50)");
 
                 b.Property<DateTime>("RegistrationDate")
@@ -50,9 +53,12 @@ namespace Data
                     .HasColumnType("bigint")
                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                b.Property<int>("AccountId")
+                    .HasColumnType("int");
+
                 b.Property<decimal>("Amount")
-                    .HasColumnType("decimal(18,2)")
-                    .HasPrecision(18,2);
+                    .HasPrecision(18, 2)
+                    .HasColumnType("decimal(18,2)");
 
                 b.Property<DateTime>("Date")
                     .HasColumnType("datetime2");
@@ -62,7 +68,25 @@ namespace Data
 
                 b.HasKey("Id");
 
+                b.HasIndex("AccountId");
+
                 b.ToTable("Transactions");
+            });
+
+            modelBuilder.Entity("Data.Models.Transaction", b =>
+            {
+                b.HasOne("Data.Models.Account", "Account")
+                    .WithMany("Transactions")
+                    .HasForeignKey("AccountId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+
+                b.Navigation("Account");
+            });
+
+            modelBuilder.Entity("Data.Models.Account", b =>
+            {
+                b.Navigation("Transactions");
             });
         }
     }
