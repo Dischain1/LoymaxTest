@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Services.Transactions;
 using System;
-using System.Linq;
 
 namespace LoymaxTest.Controllers
 {

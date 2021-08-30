@@ -31,6 +31,8 @@ namespace LoymaxTest
 
             services.AddScoped<ITransactionService, TransactionService>();
             services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<IAccountValidator, AccountValidator>();
+
 
             services.AddApiVersioning(options =>
             {
