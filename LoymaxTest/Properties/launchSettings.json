@@ -20,7 +20,7 @@
     "LoymaxTest": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "HealthCheck",
+      "launchUrl": "Swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
