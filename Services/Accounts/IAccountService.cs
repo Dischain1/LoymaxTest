@@ -6,5 +6,6 @@ namespace Services.Accounts
     {
         public int AddAccount(AddAccountDto account);
         public decimal GetBalance(int accountId);
+        public bool AccountExist(int accountId);
     }
 }

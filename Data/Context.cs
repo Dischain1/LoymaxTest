@@ -10,7 +10,7 @@ namespace Data
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
 
-        public LoymaxTestContext(DbContextOptions<LoymaxTestContext> options) : base(options){}
+        public LoymaxTestContext(DbContextOptions<LoymaxTestContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
