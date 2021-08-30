@@ -35,9 +35,9 @@ namespace LoymaxTest.Controllers
                 _logger.LogError(ModelState.JoinErrors());
                 return AccountCreationFaildId;
             }
-           
+
             //ToDo automapper maybe?
-            var addAccountDto = new AddAccountDto 
+            var addAccountDto = new AddAccountDto
             {
                 FirstName = model.FirstName,
                 LastName = model.LastName,
@@ -50,7 +50,7 @@ namespace LoymaxTest.Controllers
                 _logger.LogError(validationResult.Errors);
                 return AccountCreationFaildId;
             }
-          
+
             return _accountService.AddAccount(addAccountDto);
         }
 

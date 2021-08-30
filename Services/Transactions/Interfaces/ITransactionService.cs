@@ -4,8 +4,6 @@ namespace Services.Transactions
 {
     public interface ITransactionService
     {
-        public DepositFeedback Deposit();
-
-        public WithdrawalFeedback Withdraw();
+        public TransactionResult AddTransaction(AddTransactionDto transactionDto);
     }
 }

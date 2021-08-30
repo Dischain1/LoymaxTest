@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Services.Accounts.Models
+namespace Services
 {
     public class ValidationReslut
     {
