@@ -1,15 +1,29 @@
+using Data;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
+using System.Threading.Tasks;
 
 namespace LoymaxTest
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
-            CreateHostBuilder(args)
-                .Build()
-                .Run();
+            var host = CreateHostBuilder(args).Build();
+
+            using (var serviceScope = host.Services.GetService<IServiceScopeFactory>()?.CreateScope())
+            {
+                if (serviceScope != null)
+                {
+                    var serviceProvider = serviceScope.ServiceProvider;
+                    await RunDbMigrations(serviceScope.ServiceProvider);
+                }
+            }
+
+            await host.RunAsync();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args)
@@ -19,6 +33,14 @@ namespace LoymaxTest
                 {
                     webBuilder.UseStartup<Startup>();
                 });
+        }
+
+        private static async Task RunDbMigrations(IServiceProvider serviceProvider)
+        {
+            var context = serviceProvider.GetRequiredService<LoymaxTestContext>();
+            context.Database.SetCommandTimeout(TimeSpan.FromMinutes(5));
+            await context.Database.MigrateAsync();
+            context.Database.SetCommandTimeout(TimeSpan.FromSeconds(30));
         }
     }
 }
