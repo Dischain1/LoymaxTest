@@ -27,7 +27,6 @@ namespace LoymaxTest.Controllers
             _mapper = mapper;
         }
 
-        // ToDo automapper
         [HttpPost]
         [Route("Deposit")]
         public async Task<AddTransactionResult> Deposit(DepositTransactionModel deposit)
