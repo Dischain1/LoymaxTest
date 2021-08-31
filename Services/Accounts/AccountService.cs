@@ -53,7 +53,7 @@ namespace Services.Accounts
 
             using var transaction = _context.Database.BeginTransaction(IsolationLevel.RepeatableRead);
             var totalDeposit = depositTransactions.Sum(x => x.Amount);
-            var totalWithdrawal = depositTransactions.Sum(x => x.Amount);
+            var totalWithdrawal = withdrawalTransactions.Sum(x => x.Amount);
             transaction.Commit();
 
             return totalDeposit - totalWithdrawal;
