@@ -34,7 +34,7 @@ namespace Data
                     .HasMaxLength(50)
                     .HasColumnType("nvarchar(50)");
 
-                b.Property<string>("Panronimic")
+                b.Property<string>("Patronymic")
                     .HasMaxLength(50)
                     .HasColumnType("nvarchar(50)");
 

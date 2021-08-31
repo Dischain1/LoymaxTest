@@ -1,9 +1,10 @@
 ﻿using Services.Transactions.Models;
+using System.Threading.Tasks;
 
 namespace Services.Transactions.Interfaces
 {
     public interface ITransactionService
     {
-        public TransactionResult AddTransaction(AddTransactionDto transactionDto);
+        public Task<AddTransactionResult> SaveTransaction(AddTransactionDto transactionDto);
     }
 }

@@ -1,10 +1,12 @@
-﻿using LoymaxTest.Helpers;
+﻿using AutoMapper;
+using LoymaxTest.Helpers;
 using LoymaxTest.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Services.Accounts.Interfaces;
 using Services.Accounts.Models;
 using Services.Common;
+using System.Threading.Tasks;
 
 namespace LoymaxTest.Controllers
 {
@@ -16,57 +18,55 @@ namespace LoymaxTest.Controllers
         private readonly ILogger<AccountController> _logger;
         private readonly IAccountService _accountService;
         private readonly IAccountValidator _accountValidator;
+        private readonly IMapper _mapper;
 
         private const int AccountCreationFailedId = -1;
         private const decimal BalanceOfNotFoundAccount = decimal.MinValue;
 
         public AccountController(ILogger<AccountController> logger,
             IAccountService accountService,
-            IAccountValidator accountValidator)
+            IAccountValidator accountValidator,
+            IMapper mapper)
         {
             _logger = logger;
             _accountService = accountService;
             _accountValidator = accountValidator;
+            _mapper = mapper;
         }
 
         [HttpPost]
-        public int Account(AddAccountModel model)
+        public async Task<int> Account(AddAccountModel model)
         {
             if (!ModelState.IsValid)
             {
-                _logger.LogError(ModelState.JoinErrors());
+                _logger.LogError($"Error occurred on registering new account. {ModelState.JoinErrors()}");
                 return AccountCreationFailedId;
             }
 
-            //ToDo automapper maybe?
-            var addAccountDto = new AddAccountDto
-            {
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                Patronimic = model.Patronimic,
-                DateOfBirth = model.DateOfBirth,
-            };
+            var addAccountDto = _mapper.Map<AddAccountDto>(model);
+
             var validationResult = _accountValidator.Validate(addAccountDto);
             if (!validationResult.Valid)
             {
-                _logger.LogError(validationResult.Errors);
+                _logger.LogError($"Error occurred on registering new account. {validationResult.Errors}");
                 return AccountCreationFailedId;
             }
 
-            return _accountService.AddAccount(addAccountDto);
+            return await _accountService.AddAccount(addAccountDto);
         }
 
         [HttpGet]
         [Route("balance/{accountId:int}")]
-        public decimal Balance(int accountId)
+        public async Task<decimal> Balance(int accountId)
         {
-            if (!_accountService.AccountExist(accountId))
+            var accountExist = await _accountService.AccountExist(accountId);
+            if (!accountExist)
             {
                 _logger.LogError($"Error occurred on getting Balance. {ErrorMessages.AccountDoesNotExist(accountId)}");
                 return BalanceOfNotFoundAccount;
             }
 
-            return _accountService.CalculateBalance(accountId);
+            return await _accountService.CalculateBalance(accountId);
         }
     }
 }

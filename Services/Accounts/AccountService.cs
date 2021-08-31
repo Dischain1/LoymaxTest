@@ -7,6 +7,7 @@ using Services.Accounts.Models;
 using System;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Services.Accounts
 {
@@ -19,58 +20,58 @@ namespace Services.Accounts
             _context = context;
         }
 
-        public bool AccountExist(int accountId)
+        public async Task<bool> AccountExist(int accountId)
         {
-            return _context.Accounts.Any(x => x.Id == accountId);
+            return await _context.Accounts.AnyAsync(x => x.Id == accountId);
         }
 
-        public int AddAccount(AddAccountDto account)
+        public async Task<int> AddAccount(AddAccountDto account)
         {
             var entity = new Account
             {
                 FirstName = account.FirstName,
                 LastName = account.LastName,
-                Patronimic = account.Patronimic,
+                Patronymic = account.Patronymic,
                 DateOfBirth = account.DateOfBirth,
                 RegistrationDate = DateTime.Now.ToUniversalTime(),
             };
 
-            _context.Accounts.Add(entity);
-            _context.SaveChanges();
+            await _context.Accounts.AddAsync(entity);
+            await _context.SaveChangesAsync();
 
             return entity.Id;
         }
 
-        public decimal CalculateBalance(int accountId, bool isUsedInsideTransaction = false)
+        public async Task<decimal> CalculateBalance(int accountId, bool isUsedInsideTransaction = false)
         {
             if (isUsedInsideTransaction)
-                return CalculateBalanceUsingTotalDepositAndWithdrawal(accountId);
+                return await CalculateBalanceUsingTotalDepositAndWithdrawalAsync(accountId);
 
-            using var transaction = _context.Database.BeginTransaction(IsolationLevel.RepeatableRead);
-            return CalculateBalanceUsingTotalDepositAndWithdrawal(accountId);
+            await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead);
+            return await CalculateBalanceUsingTotalDepositAndWithdrawalAsync(accountId);
         }
 
-        private decimal CalculateBalanceUsingTotalDepositAndWithdrawal(int accountId)
+        private async Task<decimal> CalculateBalanceUsingTotalDepositAndWithdrawalAsync(int accountId)
         {
-            var totalDeposit = _context.Transactions
+            var totalDeposit = await _context.Transactions
                 .Where(x => x.AccountId == accountId)
                 .Where(x => x.Type == (int)TransactionType.Deposit)
-                .Sum(x => x.Amount);
+                .SumAsync(x => x.Amount);
 
-            var totalWithdrawal = _context.Transactions
+            var totalWithdrawal = await _context.Transactions
                 .Where(x => x.AccountId == accountId)
                 .Where(x => x.Type == (int)TransactionType.Withdrawal)
-                .Sum(x => x.Amount);
+                .SumAsync(x => x.Amount);
 
             return totalDeposit - totalWithdrawal;
         }
 
-        public decimal CalculateBalanceInMemory(int accountId)
+        public async Task<decimal> CalculateBalanceInMemory(int accountId)
         {
-            var accountTransactions = _context.Transactions
+            var accountTransactions = await _context.Transactions
                 .Where(x => x.AccountId == accountId)
                 .Select(x => new { x.Type, x.Amount })
-                .ToList();
+                .ToListAsync();
 
             var sum = 0M;
             const int depositCode = (int)TransactionType.Deposit;

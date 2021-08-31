@@ -1,11 +1,11 @@
-﻿using Data.Enums;
+﻿using AutoMapper;
 using LoymaxTest.Helpers;
 using LoymaxTest.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Services.Transactions.Interfaces;
 using Services.Transactions.Models;
-using System;
+using System.Threading.Tasks;
 
 namespace LoymaxTest.Controllers
 {
@@ -16,55 +16,54 @@ namespace LoymaxTest.Controllers
     {
         private readonly ITransactionService _transactionService;
         private readonly ILogger<TransactionController> _logger;
+        private readonly IMapper _mapper;
 
         public TransactionController(ILogger<TransactionController> logger,
-            ITransactionService transactionService)
+            ITransactionService transactionService,
+            IMapper mapper)
         {
             _logger = logger;
             _transactionService = transactionService;
+            _mapper = mapper;
         }
 
         // ToDo automapper
         [HttpPost]
         [Route("Deposit")]
-        public TransactionResult Deposit(DepositTransactionModel deposit)
+        public async Task<AddTransactionResult> Deposit(DepositTransactionModel deposit)
         {
             if (!ModelState.IsValid)
             {
                 var errorsText = ModelState.JoinErrors();
-                _logger.LogError(errorsText);
-                return TransactionResult.FailedResult(errorsText);
+                _logger.LogError($"Error occurred on posting Deposit. {errorsText}");
+                return AddTransactionResult.FailedResult(errorsText);
             }
 
-            var addTransactionDto = new AddTransactionDto(
-                accountId: deposit.AccountId,
-                amount: deposit.Deposit,
-                type: TransactionType.Deposit);
+            var newTransactionDto = _mapper.Map<AddTransactionDto>(deposit);
 
-            var validationResult = _transactionService.AddTransaction(addTransactionDto);
+            var validationResult = await _transactionService.SaveTransaction(newTransactionDto);
+            if (!validationResult.Succeeded)
+                _logger.LogError($"Error occurred on posting Deposit. {validationResult.Errors}");
 
             return validationResult;
         }
 
         [HttpPost]
         [Route("Withdrawal")]
-        public TransactionResult Withdrawal(WithdrawalTransactionModel withdrawal)
+        public async Task<AddTransactionResult> Withdrawal(WithdrawalTransactionModel withdrawal)
         {
             if (!ModelState.IsValid)
             {
                 var errorsText = ModelState.JoinErrors();
-                _logger.LogError(errorsText);
-                throw new ArgumentException(errorsText, nameof(withdrawal));
+                _logger.LogError($"Error occurred on posting Withdrawal. {errorsText}");
+                return AddTransactionResult.FailedResult(errorsText);
             }
 
-            var addTransactionDto = new AddTransactionDto(
-               accountId: withdrawal.AccountId,
-               amount: withdrawal.Withdrawal,
-               type: TransactionType.Withdrawal);
+            var newTransactionDto = _mapper.Map<AddTransactionDto>(withdrawal);
 
-            var validationResult = _transactionService.AddTransaction(addTransactionDto);
+            var validationResult = await _transactionService.SaveTransaction(newTransactionDto);
             if (!validationResult.Succeeded)
-                _logger.LogError(validationResult.Errors);
+                _logger.LogError($"Error occurred on posting Withdrawal. {validationResult.Errors}");
 
             return validationResult;
         }

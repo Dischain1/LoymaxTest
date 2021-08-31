@@ -3,6 +3,7 @@ using Services.Accounts.Interfaces;
 using Services.Common;
 using Services.Transactions.Interfaces;
 using Services.Transactions.Models;
+using System.Threading.Tasks;
 
 namespace Services.Transactions
 {
@@ -15,9 +16,9 @@ namespace Services.Transactions
             _accountService = accountService;
         }
 
-        public ValidationResult Validate(AddTransactionDto transactionAddDto, bool isUsedInsideTransaction)
+        public async Task<ValidationResult> Validate(AddTransactionDto transactionAddDto, bool isUsedInsideTransaction)
         {
-            var accountExist = _accountService.AccountExist(transactionAddDto.AccountId);
+            var accountExist = await _accountService.AccountExist(transactionAddDto.AccountId);
             if (!accountExist)
                 return ValidationResult.NotValidResult($"Error on validating transaction. {ErrorMessages.AccountDoesNotExist(transactionAddDto.AccountId)}");
 
@@ -47,7 +48,7 @@ namespace Services.Transactions
                         var depositLimitExceeded = $"Withdrawal limit exceeded. Withdrawal: {transactionAddDto.Amount}, Withdrawal limit: {CommonConstants.WithdrawalLimit}.";
                         return ValidationResult.NotValidResult(depositLimitExceeded);
                     }
-                    var currentBalance = _accountService.CalculateBalance(transactionAddDto.AccountId, isUsedInsideTransaction: isUsedInsideTransaction);
+                    var currentBalance = await _accountService.CalculateBalance(transactionAddDto.AccountId, isUsedInsideTransaction: isUsedInsideTransaction);
                     var insufficientFunds = currentBalance - transactionAddDto.Amount < 0;
                     if (insufficientFunds)
                     {

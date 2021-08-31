@@ -24,7 +24,7 @@ namespace Data.Models
         public string LastName { get; set; }
 
         [MaxLength(50)]
-        public string Patronimic { get; set; }
+        public string Patronymic { get; set; }
 
         public DateTime DateOfBirth { get; set; }
 
