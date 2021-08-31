@@ -30,7 +30,7 @@ namespace Services.Accounts
             {
                 FirstName = account.FirstName,
                 LastName = account.LastName,
-                Panronimic = account.Panronimic,
+                Patronimic = account.Patronimic,
                 DateOfBirth = account.DateOfBirth,
                 RegistrationDate = DateTime.Now.ToUniversalTime(),
             };

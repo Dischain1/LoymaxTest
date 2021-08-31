@@ -44,7 +44,7 @@ namespace LoymaxTest.Controllers
             {
                 FirstName = model.FirstName,
                 LastName = model.LastName,
-                Panronimic = model.Panronimic,
+                Patronimic = model.Patronimic,
                 DateOfBirth = model.DateOfBirth,
             };
             var validationResult = _accountValidator.Validate(addAccountDto);
