@@ -16,6 +16,8 @@ namespace Services.Transactions
             _accountService = accountService;
         }
 
+        // ToDo check decimal scale of 2
+        // IF dto.Amount == 10.111111 => It is NOT valid
         public async Task<ValidationResult> Validate(AddTransactionDto transactionAddDto, bool isUsedInsideTransaction)
         {
             var accountExist = await _accountService.AccountExist(transactionAddDto.AccountId);
@@ -27,10 +29,6 @@ namespace Services.Transactions
                 var negativeAmountError = $"Provided amount to deposit or withdraw should be positive. Provided value is {transactionAddDto.Amount}";
                 return ValidationResult.NotValidResult(negativeAmountError);
             }
-
-            // ToDo check decimal scale of 2
-            // IF dto.Amount == 10.111111 => It is NOT valid
-
 
             switch (transactionAddDto.Type)
             {

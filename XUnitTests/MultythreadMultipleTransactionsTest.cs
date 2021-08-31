@@ -16,7 +16,7 @@ namespace XUnitTests
 {
     public class MultiThreadMultipleTransactionsTest : UnitTestsWithInMemoryDb
     {
-        // Emulating DI
+        // Emulating usage of scoped Context like in Controller
         private ITransactionService TransactionService
         {
             get
@@ -61,12 +61,13 @@ namespace XUnitTests
             const int threadsPerAccount = 10;
             var tasks = CreateDepositsAndWithdrawalsTasks(accountIdsList, threadsPerAccount);
 
+
             //        -------------------------------------        Act        -------------------------------------
             foreach (var task in tasks)
                 task.Start();
 
             await Task.WhenAll(tasks);
-            // Getting all balances
+
             var accountService = new AccountService(Context);
             var balances = new List<decimal>();
             var transactionsNumber = new List<int>();
@@ -76,6 +77,7 @@ namespace XUnitTests
                 balances.Add(await accountService.CalculateBalance(accountId));
                 transactionsNumber.Add(Context.Transactions.Count(x => x.AccountId == accountId));
             }
+
 
             //        -------------------------------------        Assert        -------------------------------------
             Assert.True(balances.TrueForAll(x => x == 100));
