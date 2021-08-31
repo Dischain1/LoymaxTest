@@ -11,8 +11,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services", "Services\Servic
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EA8A0981-C396-4F57-949A-060C4256916F}"
 	ProjectSection(SolutionItems) = preProject
-		Task description.txt = Task description.txt
+		TaskDescription.txt = TaskDescription.txt
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XUnitTests", "XUnitTests\XUnitTests.csproj", "{032B21A1-73F0-4504-9E73-A492F7A75922}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,6 +34,10 @@ Global
 		{68880CA0-66FD-4457-BFFD-14CA6FD1F878}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{68880CA0-66FD-4457-BFFD-14CA6FD1F878}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{68880CA0-66FD-4457-BFFD-14CA6FD1F878}.Release|Any CPU.Build.0 = Release|Any CPU
+		{032B21A1-73F0-4504-9E73-A492F7A75922}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{032B21A1-73F0-4504-9E73-A492F7A75922}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{032B21A1-73F0-4504-9E73-A492F7A75922}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{032B21A1-73F0-4504-9E73-A492F7A75922}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
