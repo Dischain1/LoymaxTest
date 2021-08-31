@@ -1,10 +1,11 @@
-﻿using Services.Common;
+﻿using System.Threading.Tasks;
+using Services.Common;
 using Services.Transactions.Models;
 
 namespace Services.Transactions.Interfaces
 {
     public interface ITransactionValidator
     {
-        public ValidationResult Validate(AddTransactionDto transactionAddDto, bool isUsedInsideTransaction);
+        public Task<ValidationResult> Validate(AddTransactionDto transactionAddDto, bool isUsedInsideTransaction);
     }
 }

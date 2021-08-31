@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Services;
 using Services.Accounts;
 using Services.Accounts.Interfaces;
 using Services.Transactions;
@@ -33,6 +32,8 @@ namespace LoymaxTest
 
             services.AddScoped<IAccountValidator, AccountValidator>();
             services.AddScoped<ITransactionValidator, TransactionValidator>();
+
+            services.AddAutoMapper(typeof(Startup));
 
             services.AddApiVersioning(options =>
             {

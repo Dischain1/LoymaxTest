@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data.Migrations
 {
     [DbContext(typeof(LoymaxTestContext))]
-    [Migration("20210830075713_ConnectionOfAccountsAndTransactions")]
-    partial class ConnectionOfAccountsAndTransactions
+    [Migration("20210831090723_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -41,7 +41,7 @@ namespace Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("Panronimic")
+                    b.Property<string>("Patronymic")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 

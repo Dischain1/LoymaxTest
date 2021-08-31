@@ -5,6 +5,7 @@ using Services.Transactions.Interfaces;
 using Services.Transactions.Models;
 using System;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace Services.Transactions
 {
@@ -21,39 +22,36 @@ namespace Services.Transactions
             _transactionValidator = transactionValidator;
         }
 
-        public TransactionResult AddTransaction(AddTransactionDto transactionDto)
+        public async Task<AddTransactionResult> SaveTransaction(AddTransactionDto transactionDto)
         {
-            var transactionEntity = new Transaction
+            // Validation and saving Account's deposit\withdrawal should be one EF transaction: 
+            // Any new Account's deposits\withdrawals can affect correctness of validation result
+            await using (var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead))
             {
-                Type = (int)transactionDto.Type,
-                AccountId = transactionDto.AccountId,
-                Amount = transactionDto.Amount
-            };
-
-            try
-            {
-                // Validation and saving Account's transaction should be one EF transaction. 
-                // Any new Account's transactions can affect correctness of validation result
-                using var transaction = _context.Database.BeginTransaction(IsolationLevel.RepeatableRead);
-                var validationResult = _transactionValidator.Validate(transactionDto, isUsedInsideTransaction: true);
-
-                if (validationResult.Valid)
+                try
                 {
-                    _context.Transactions.Add(transactionEntity);
-                    _context.SaveChanges();
-                    transaction.Commit();
-                }
-                else
-                {
-                    transaction.Rollback();
-                    return TransactionResult.FailedResult(validationResult.Errors);
-                }
+                    var validationResult = await _transactionValidator.Validate(transactionDto, isUsedInsideTransaction: true);
 
-                return TransactionResult.SucceededResult();
-            }
-            catch (Exception e)
-            {
-                return TransactionResult.FailedResult(e.Message);
+                    if (!validationResult.Valid)
+                        return AddTransactionResult.FailedResult(validationResult.Errors);
+
+                    _context.Transactions.Add(new Transaction
+                    {
+                        Type = (int)transactionDto.Type,
+                        AccountId = transactionDto.AccountId,
+                        Amount = transactionDto.Amount,
+                        Date = DateTime.Now
+                    });
+
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+
+                    return AddTransactionResult.SucceededResult();
+                }
+                catch (Exception exception)
+                {
+                    return AddTransactionResult.FailedResult(exception.Message);
+                }
             }
         }
     }

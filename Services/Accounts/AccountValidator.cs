@@ -1,9 +1,9 @@
-﻿using Services.Accounts.Interfaces;
+﻿using System;
+using Services.Accounts.Interfaces;
 using Services.Accounts.Models;
 using Services.Common;
-using System;
 
-namespace Services
+namespace Services.Accounts
 {
     public class AccountValidator : IAccountValidator
     {

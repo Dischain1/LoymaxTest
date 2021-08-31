@@ -39,11 +39,7 @@ namespace Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("Panronimic")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Patronimic")
+                    b.Property<string>("Patronymic")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 

@@ -18,7 +18,5 @@ namespace Data.Models
         [ForeignKey("Account")]
         public int AccountId { get; set; }
         public virtual Account Account { get; set; }
-
-        public TransactionType GetTransactionType() => (TransactionType)Type;
     }
 }

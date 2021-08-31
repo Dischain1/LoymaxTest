@@ -14,7 +14,7 @@ namespace LoymaxTest.Models
         public string LastName { get; set; }
 
         [StringLength(50)]
-        public string Patronimic { get; set; }
+        public string Patronymic { get; set; }
 
         public DateTime DateOfBirth { get; set; }
     }
