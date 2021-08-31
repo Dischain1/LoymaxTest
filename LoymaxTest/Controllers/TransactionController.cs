@@ -5,6 +5,9 @@ using Microsoft.Extensions.Logging;
 using Services.Transactions;
 using Services.Transactions.Models;
 using System;
+using LoymaxTest.Helpers;
+using LoymaxTest.Models;
+using Services.Transactions.Interfaces;
 
 namespace LoymaxTest.Controllers
 {
@@ -32,7 +35,7 @@ namespace LoymaxTest.Controllers
             {
                 var errorsText = ModelState.JoinErrors();
                 _logger.LogError(errorsText);
-                return TransactionResult.CreateFailedResult(errorsText);
+                return TransactionResult.FailedResult(errorsText);
             }
 
             var addTransactionDto = new AddTransactionDto(
@@ -62,7 +65,7 @@ namespace LoymaxTest.Controllers
                type: TransactionType.Withdrawal);
 
             var validationResult = _transactionService.AddTransaction(addTransactionDto);
-            if (!validationResult.Succeded)
+            if (!validationResult.Succeeded)
                 _logger.LogError(validationResult.Errors);
 
             return validationResult;

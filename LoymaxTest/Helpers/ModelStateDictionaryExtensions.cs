@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System.Linq;
+﻿using System.Linq;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace LoymaxTest.Controllers
+namespace LoymaxTest.Helpers
 {
     public static class ModelStateDictionaryExtensions
     {
@@ -10,8 +10,8 @@ namespace LoymaxTest.Controllers
             if (!modelState.IsValid)
             {
                 return string.Join(" | ", modelState.Values
-                    .SelectMany(v => v.Errors)
-                    .Select(e => e.ErrorMessage));
+                    .SelectMany(modelStateEntry => modelStateEntry.Errors)
+                    .Select(modelError => modelError.ErrorMessage));
             }
 
             return string.Empty;

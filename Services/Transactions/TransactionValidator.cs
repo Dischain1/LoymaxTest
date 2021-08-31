@@ -1,8 +1,9 @@
 ﻿using Data;
 using Services.Accounts;
+using Services.Accounts.Interfaces;
 using Services.Common;
+using Services.Transactions.Interfaces;
 using Services.Transactions.Models;
-using System;
 
 namespace Services.Transactions
 {
@@ -18,21 +19,21 @@ namespace Services.Transactions
             _context = context;
         }
 
-        public ValidationReslut ValidateTransaction(AddTransactionDto dto)
+        public ValidationResult ValidateTransaction(AddTransactionDto dto)
         {
             // Common logic
             var accountExist = _accountService.AccountExist(dto.AccountId);
             if (!accountExist)
-                return ValidationReslut.NotValidResult($"Error on validating transaction. {ErrorMessages.AccountDoesNotExist(dto.AccountId)}");
+                return ValidationResult.NotValidResult($"Error on validating transaction. {ErrorMessages.AccountDoesNotExist(dto.AccountId)}");
 
             if (dto.Amount <= 0)
             {
-                var negativeAmountError = $"Provided amount to deposit or withdraw should be positive.";
-                return ValidationReslut.NotValidResult(negativeAmountError);
+                var negativeAmountError = $"Provided amount to deposit or withdraw should be positive. Provided value is {dto.Amount}";
+                return ValidationResult.NotValidResult(negativeAmountError);
             }
 
             // ToDo check decimal scale of 2
-            // IF dto.Amount == 10.111111 => is NOT valid
+            // IF dto.Amount == 10.111111 => It is NOT valid
 
             switch (dto.Type)
             {
@@ -46,16 +47,16 @@ namespace Services.Transactions
                     if (isBalanceEnoughToWithdraw)
                     {
                         var insufficientFundsError = $"Insufficient funds to perform withdraw. Balance: {balance}. Withdrawal: {dto.Amount}, Account Id:{dto.AccountId}.";
-                        return ValidationReslut.NotValidResult(insufficientFundsError);
+                        return ValidationResult.NotValidResult(insufficientFundsError);
                     }
                     break;
 
                 default:
                     var transactionTypeError = $"Unknown transaction type used. Transaction type: {dto.Type}, Account Id:{dto.AccountId}";
-                    return ValidationReslut.NotValidResult(transactionTypeError);
+                    return ValidationResult.NotValidResult(transactionTypeError);
             }
 
-            return ValidationReslut.ValidResult();
+            return ValidationResult.ValidResult();
         }
     }
 }

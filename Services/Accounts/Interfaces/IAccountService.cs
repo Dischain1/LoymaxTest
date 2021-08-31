@@ -1,6 +1,6 @@
 ﻿using Services.Accounts.Models;
 
-namespace Services.Accounts
+namespace Services.Accounts.Interfaces
 {
     public interface IAccountService
     {

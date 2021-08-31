@@ -1,9 +1,10 @@
 ﻿using Services.Accounts.Models;
+using Services.Common;
 
-namespace Services.Accounts
+namespace Services.Accounts.Interfaces
 {
     public interface IAccountValidator
     {
-        public ValidationReslut Validate(AddAccountDto addAccountDto);
+        public ValidationResult Validate(AddAccountDto addAccountDto);
     }
 }

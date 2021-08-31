@@ -1,11 +1,10 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace Data.Models
+namespace LoymaxTest.Models
 {
     public class WithdrawalTransactionModel
     {
-        const decimal MaxWithdrawal = 1000000;
+        private const decimal MaxWithdrawal = 1000000;
 
         public int AccountId { get; set; }
 

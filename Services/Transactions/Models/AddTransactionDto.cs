@@ -2,7 +2,7 @@
 
 namespace Services.Transactions.Models
 {
-    public partial class AddTransactionDto
+    public class AddTransactionDto
     {
         public readonly TransactionType Type;
         public readonly int AccountId;

@@ -1,10 +1,10 @@
-﻿
+﻿using Services.Common;
 using Services.Transactions.Models;
 
-namespace Services.Transactions
+namespace Services.Transactions.Interfaces
 {
     public interface ITransactionValidator
     {
-        public ValidationReslut ValidateTransaction(AddTransactionDto transactionDto);
+        public ValidationResult ValidateTransaction(AddTransactionDto transactionDto);
     }
 }

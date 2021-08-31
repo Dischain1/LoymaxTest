@@ -1,14 +1,14 @@
-﻿using Data;
+﻿using System;
+using System.Data;
+using System.Linq;
+using Data;
 using Data.Enums;
 using Data.Models;
 using Microsoft.EntityFrameworkCore;
-using Services.Accounts;
+using Services.Accounts.Interfaces;
 using Services.Accounts.Models;
-using System;
-using System.Data;
-using System.Linq;
 
-namespace Services
+namespace Services.Accounts
 {
     public class AccountService : IAccountService
     {
@@ -55,6 +55,7 @@ namespace Services
             var totalDeposit = depositTransactions.Sum(x => x.Amount);
             var totalWithdrawal = depositTransactions.Sum(x => x.Amount);
             transaction.Commit();
+
             return totalDeposit - totalWithdrawal;
         }
     }

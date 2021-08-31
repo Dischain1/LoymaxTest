@@ -1,6 +1,6 @@
 ﻿namespace LoymaxTest.Properties
 {
-    internal class ConfigurationKeyConstants
+    internal static class ConfigurationKeyConstants
     {
         public const string ConnectionString = "LoymaxTest:ConnectionString";
     }

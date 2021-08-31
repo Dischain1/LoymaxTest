@@ -1,30 +1,30 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Services
+namespace Services.Common
 {
-    public class ValidationReslut
+    public class ValidationResult
     {
         private readonly List<string> _errors;
 
         public bool Valid => !_errors.Any();
         public string Errors => string.Join(" | ", _errors);
 
-        private ValidationReslut()
+        private ValidationResult()
         {
             _errors = new List<string>();
         }
 
-        private ValidationReslut(string error)
+        private ValidationResult(string error)
         {
             _errors = new List<string> { error };
         }
 
-        public static ValidationReslut ValidResult() => new ValidationReslut();
-        public static ValidationReslut NotValidResult(string error) => new ValidationReslut(error);
+        public static ValidationResult ValidResult() => new ValidationResult();
+        public static ValidationResult NotValidResult(string error) => new ValidationResult(error);
 
 
-        public ValidationReslut AddError(string error)
+        public ValidationResult AddError(string error)
         {
             _errors.Add(error);
             return this;

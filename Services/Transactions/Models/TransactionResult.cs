@@ -2,24 +2,22 @@
 {
     public class TransactionResult
     {
-        public bool Succeded => string.IsNullOrWhiteSpace(_errors);
-        public string Errors => _errors;
-
-        private readonly string _errors;
+        public bool Succeeded => string.IsNullOrWhiteSpace(Errors);
+        public string Errors { get; }
 
         private TransactionResult() { }
 
         private TransactionResult(string error)
         {
-            _errors = error;
+            Errors = error;
         }
 
-        public static TransactionResult CreateFailedResult(string errors)
+        public static TransactionResult FailedResult(string errors)
         {
             return new TransactionResult(errors);
         }
 
-        public static TransactionResult CreateSuccededResult()
+        public static TransactionResult SucceededResult()
         {
             return new TransactionResult();
         }

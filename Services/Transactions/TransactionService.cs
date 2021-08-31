@@ -1,12 +1,12 @@
 ﻿using Data;
 using Data.Models;
 using Microsoft.EntityFrameworkCore;
-using Services.Transactions;
 using Services.Transactions.Models;
 using System;
 using System.Data;
+using Services.Transactions.Interfaces;
 
-namespace Services
+namespace Services.Transactions
 {
     public class TransactionService : ITransactionService
     {
@@ -23,16 +23,16 @@ namespace Services
 
         public TransactionResult AddTransaction(AddTransactionDto transactionDto)
         {
-            Transaction transactionEntity = new Transaction
+            var transactionEntity = new Transaction
             {
                 Type = (int)transactionDto.Type,
                 AccountId = transactionDto.AccountId,
-                Amount = transactionDto.Amount,
+                Amount = transactionDto.Amount
             };
 
             try
             {
-                // Validation and adding Account's transaction should be one EF transaction. 
+                // Validation and saving Account's transaction should be one EF transaction. 
                 // Any new Account's transactions can affect correctness of validation result
                 using var transaction = _context.Database.BeginTransaction(IsolationLevel.RepeatableRead);
                 var validationResult = _transactionValidator.ValidateTransaction(transactionDto);
@@ -46,14 +46,14 @@ namespace Services
                 else
                 {
                     transaction.Rollback();
-                    return TransactionResult.CreateFailedResult(validationResult.Errors);
+                    return TransactionResult.FailedResult(validationResult.Errors);
                 }
 
-                return TransactionResult.CreateSuccededResult();
+                return TransactionResult.SucceededResult();
             }
             catch (Exception e)
             {
-                return TransactionResult.CreateFailedResult(e.Message);
+                return TransactionResult.FailedResult(e.Message);
             }
         }
     }

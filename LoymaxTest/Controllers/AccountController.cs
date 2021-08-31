@@ -1,7 +1,9 @@
-﻿using LoymaxTest.Models;
+﻿using LoymaxTest.Helpers;
+using LoymaxTest.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Services.Accounts;
+using Services.Accounts.Interfaces;
 using Services.Accounts.Models;
 using Services.Common;
 
@@ -14,10 +16,10 @@ namespace LoymaxTest.Controllers
     {
         private readonly ILogger<AccountController> _logger;
         private readonly IAccountService _accountService;
-        private IAccountValidator _accountValidator;
+        private readonly IAccountValidator _accountValidator;
 
-        const int AccountCreationFaildId = -1;
-        const decimal BalanceOfNotFoundAccount = decimal.MinValue;
+        private const int AccountCreationFailedId = -1;
+        private const decimal BalanceOfNotFoundAccount = decimal.MinValue;
 
         public AccountController(ILogger<AccountController> logger,
             IAccountService accountService,
@@ -34,7 +36,7 @@ namespace LoymaxTest.Controllers
             if (!ModelState.IsValid)
             {
                 _logger.LogError(ModelState.JoinErrors());
-                return AccountCreationFaildId;
+                return AccountCreationFailedId;
             }
 
             //ToDo automapper maybe?
@@ -49,7 +51,7 @@ namespace LoymaxTest.Controllers
             if (!validationResult.Valid)
             {
                 _logger.LogError(validationResult.Errors);
-                return AccountCreationFaildId;
+                return AccountCreationFailedId;
             }
 
             return _accountService.AddAccount(addAccountDto);
@@ -61,7 +63,7 @@ namespace LoymaxTest.Controllers
         {
             if (!_accountService.AccountExist(accountId))
             {
-                _logger.LogError($"Error occured on getting Balance. {ErrorMessages.AccountDoesNotExist(accountId)}");
+                _logger.LogError($"Error occurred on getting Balance. {ErrorMessages.AccountDoesNotExist(accountId)}");
                 return BalanceOfNotFoundAccount;
             }
 
