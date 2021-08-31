@@ -41,22 +41,57 @@ namespace Services.Accounts
             return entity.Id;
         }
 
-        public decimal GetBalance(int accountId)
+        public decimal CalculateBalance(int accountId, bool isUsedInsideTransaction = false)
         {
-            var depositTransactions = _context.Transactions
-                .Where(x => x.AccountId == accountId)
-                .Where(x => x.Type == (int)TransactionType.Deposit);
-
-            var withdrawalTransactions = _context.Transactions
-                .Where(x => x.AccountId == accountId)
-                .Where(x => x.Type == (int)TransactionType.Withdrawal);
+            if (isUsedInsideTransaction) 
+                return CalculateBalanceUsingTotalDepositAndWithdrawal(accountId);
 
             using var transaction = _context.Database.BeginTransaction(IsolationLevel.RepeatableRead);
-            var totalDeposit = depositTransactions.Sum(x => x.Amount);
-            var totalWithdrawal = withdrawalTransactions.Sum(x => x.Amount);
-            transaction.Commit();
+            return CalculateBalanceUsingTotalDepositAndWithdrawal(accountId);
+        }
+
+        private decimal CalculateBalanceUsingTotalDepositAndWithdrawal(int accountId)
+        {
+            var totalDeposit = _context.Transactions
+                .Where(x => x.AccountId == accountId)
+                .Where(x => x.Type == (int)TransactionType.Deposit)
+                .Sum(x => x.Amount);
+
+            var totalWithdrawal = _context.Transactions
+                .Where(x => x.AccountId == accountId)
+                .Where(x => x.Type == (int)TransactionType.Withdrawal)
+                .Sum(x => x.Amount);
 
             return totalDeposit - totalWithdrawal;
+        }
+
+        public decimal CalculateBalanceInMemory(int accountId)
+        {
+            var accountTransactions = _context.Transactions
+                .Where(x => x.AccountId == accountId)
+                .Select(x=>new { x.Type, x.Amount })
+                .ToList();
+
+            var sum = 0M;
+            const int depositCode = (int)TransactionType.Deposit;
+            const int withdrawalCode = (int)TransactionType.Withdrawal;
+
+            foreach (var transaction in accountTransactions)
+            {
+                switch (transaction.Type)
+                {
+                    case depositCode:
+                        sum += transaction.Amount;
+                        break;
+                    case withdrawalCode:
+                        sum -= transaction.Amount;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(transaction.Type));
+                }
+            }
+
+            return sum;
         }
     }
 }

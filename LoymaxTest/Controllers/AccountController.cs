@@ -67,7 +67,7 @@ namespace LoymaxTest.Controllers
                 return BalanceOfNotFoundAccount;
             }
 
-            return _accountService.GetBalance(accountId);
+            return _accountService.CalculateBalance(accountId);
         }
     }
 }

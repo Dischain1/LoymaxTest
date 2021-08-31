@@ -19,7 +19,7 @@ namespace Services.Transactions
             _context = context;
         }
 
-        public ValidationResult ValidateTransaction(AddTransactionDto dto)
+        public ValidationResult Validate(AddTransactionDto dto, bool isUsedInsideTransaction)
         {
             // Common logic
             var accountExist = _accountService.AccountExist(dto.AccountId);
@@ -42,11 +42,11 @@ namespace Services.Transactions
                     break;
 
                 case Data.Enums.TransactionType.Withdrawal:
-                    var balance = _accountService.GetBalance(dto.AccountId);
-                    var isBalanceEnoughToWithdraw = (balance - dto.Amount) >= 0;
-                    if (isBalanceEnoughToWithdraw)
+                    var balance = _accountService.CalculateBalance(dto.AccountId, isUsedInsideTransaction: isUsedInsideTransaction);
+                    var insufficientFunds = balance - dto.Amount < 0;
+                    if (insufficientFunds)
                     {
-                        var insufficientFundsError = $"Insufficient funds to perform withdraw. Balance: {balance}. Withdrawal: {dto.Amount}, Account Id:{dto.AccountId}.";
+                        var insufficientFundsError = $"Insufficient funds to withdraw. Balance: {balance}. Withdrawal: {dto.Amount}, Account Id:{dto.AccountId}.";
                         return ValidationResult.NotValidResult(insufficientFundsError);
                     }
                     break;

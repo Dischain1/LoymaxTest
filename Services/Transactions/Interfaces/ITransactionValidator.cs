@@ -5,6 +5,6 @@ namespace Services.Transactions.Interfaces
 {
     public interface ITransactionValidator
     {
-        public ValidationResult ValidateTransaction(AddTransactionDto transactionDto);
+        public ValidationResult Validate(AddTransactionDto transactionDto, bool isUsedInsideTransaction);
     }
 }

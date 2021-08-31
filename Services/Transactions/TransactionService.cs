@@ -35,7 +35,7 @@ namespace Services.Transactions
                 // Validation and saving Account's transaction should be one EF transaction. 
                 // Any new Account's transactions can affect correctness of validation result
                 using var transaction = _context.Database.BeginTransaction(IsolationLevel.RepeatableRead);
-                var validationResult = _transactionValidator.ValidateTransaction(transactionDto);
+                var validationResult = _transactionValidator.Validate(transactionDto, isUsedInsideTransaction: true);
 
                 if (validationResult.Valid)
                 {
