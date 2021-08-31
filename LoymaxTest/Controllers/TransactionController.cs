@@ -1,13 +1,11 @@
 ﻿using Data.Enums;
-using Data.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Services.Transactions;
-using Services.Transactions.Models;
-using System;
 using LoymaxTest.Helpers;
 using LoymaxTest.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Services.Transactions.Interfaces;
+using Services.Transactions.Models;
+using System;
 
 namespace LoymaxTest.Controllers
 {

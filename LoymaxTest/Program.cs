@@ -16,7 +16,7 @@ namespace LoymaxTest
 
             using (var serviceScope = host.Services.GetService<IServiceScopeFactory>()?.CreateScope())
             {
-                if (serviceScope != null) 
+                if (serviceScope != null)
                     await RunDbMigrations(serviceScope.ServiceProvider);
             }
 

@@ -1,12 +1,12 @@
-﻿using System;
-using System.Data;
-using System.Linq;
-using Data;
+﻿using Data;
 using Data.Enums;
 using Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Services.Accounts.Interfaces;
 using Services.Accounts.Models;
+using System;
+using System.Data;
+using System.Linq;
 
 namespace Services.Accounts
 {
@@ -43,7 +43,7 @@ namespace Services.Accounts
 
         public decimal CalculateBalance(int accountId, bool isUsedInsideTransaction = false)
         {
-            if (isUsedInsideTransaction) 
+            if (isUsedInsideTransaction)
                 return CalculateBalanceUsingTotalDepositAndWithdrawal(accountId);
 
             using var transaction = _context.Database.BeginTransaction(IsolationLevel.RepeatableRead);
@@ -69,7 +69,7 @@ namespace Services.Accounts
         {
             var accountTransactions = _context.Transactions
                 .Where(x => x.AccountId == accountId)
-                .Select(x=>new { x.Type, x.Amount })
+                .Select(x => new { x.Type, x.Amount })
                 .ToList();
 
             var sum = 0M;

@@ -1,10 +1,10 @@
 ﻿using Data;
 using Data.Models;
 using Microsoft.EntityFrameworkCore;
+using Services.Transactions.Interfaces;
 using Services.Transactions.Models;
 using System;
 using System.Data;
-using Services.Transactions.Interfaces;
 
 namespace Services.Transactions
 {

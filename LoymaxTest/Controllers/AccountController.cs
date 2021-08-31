@@ -2,7 +2,6 @@
 using LoymaxTest.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Services.Accounts;
 using Services.Accounts.Interfaces;
 using Services.Accounts.Models;
 using Services.Common;
