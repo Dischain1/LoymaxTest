@@ -1,27 +1,60 @@
 ﻿using Data;
-using Services.Transactions;
+using Data.Models;
+using Microsoft.EntityFrameworkCore;
+using Services.Transactions.Interfaces;
 using Services.Transactions.Models;
 using System;
+using System.Data;
 
-namespace Services
+namespace Services.Transactions
 {
     public class TransactionService : ITransactionService
     {
-        LoymaxTestContext _context;
+        private readonly LoymaxTestContext _context;
+        private readonly ITransactionValidator _transactionValidator;
 
-        public TransactionService(LoymaxTestContext context)
+        public TransactionService(LoymaxTestContext context,
+            ITransactionValidator transactionValidator
+            )
         {
             _context = context;
+            _transactionValidator = transactionValidator;
         }
 
-        public DepositFeedback Deposit()
+        public TransactionResult AddTransaction(AddTransactionDto transactionDto)
         {
-            throw new NotImplementedException();
-        }
+            var transactionEntity = new Transaction
+            {
+                Type = (int)transactionDto.Type,
+                AccountId = transactionDto.AccountId,
+                Amount = transactionDto.Amount
+            };
 
-        public WithdrawalFeedback Withdraw()
-        {
-            throw new NotImplementedException();
+            try
+            {
+                // Validation and saving Account's transaction should be one EF transaction. 
+                // Any new Account's transactions can affect correctness of validation result
+                using var transaction = _context.Database.BeginTransaction(IsolationLevel.RepeatableRead);
+                var validationResult = _transactionValidator.Validate(transactionDto, isUsedInsideTransaction: true);
+
+                if (validationResult.Valid)
+                {
+                    _context.Transactions.Add(transactionEntity);
+                    _context.SaveChanges();
+                    transaction.Commit();
+                }
+                else
+                {
+                    transaction.Rollback();
+                    return TransactionResult.FailedResult(validationResult.Errors);
+                }
+
+                return TransactionResult.SucceededResult();
+            }
+            catch (Exception e)
+            {
+                return TransactionResult.FailedResult(e.Message);
+            }
         }
     }
 }

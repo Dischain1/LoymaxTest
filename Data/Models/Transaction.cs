@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Data.Models
 {
-    public partial class Transaction
+    public class Transaction
     {
         [Key]
         public long Id { get; set; }

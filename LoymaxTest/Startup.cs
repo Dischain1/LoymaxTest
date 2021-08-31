@@ -9,7 +9,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Services;
 using Services.Accounts;
+using Services.Accounts.Interfaces;
 using Services.Transactions;
+using Services.Transactions.Interfaces;
 
 namespace LoymaxTest
 {
@@ -19,11 +21,8 @@ namespace LoymaxTest
 
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
-            _connectionString = Configuration.GetSection(ConfigurationKeyConstants.ConnectionString).Value;
+            _connectionString = configuration.GetSection(ConfigurationKeyConstants.ConnectionString).Value;
         }
-
-        public IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -31,8 +30,9 @@ namespace LoymaxTest
 
             services.AddScoped<ITransactionService, TransactionService>();
             services.AddScoped<IAccountService, AccountService>();
-            services.AddScoped<IAccountValidator, AccountValidator>();
 
+            services.AddScoped<IAccountValidator, AccountValidator>();
+            services.AddScoped<ITransactionValidator, TransactionValidator>();
 
             services.AddApiVersioning(options =>
             {

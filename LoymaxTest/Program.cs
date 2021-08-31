@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace LoymaxTest
 {
-    public class Program
+    public static class Program
     {
         public static async Task Main(string[] args)
         {
@@ -17,16 +17,13 @@ namespace LoymaxTest
             using (var serviceScope = host.Services.GetService<IServiceScopeFactory>()?.CreateScope())
             {
                 if (serviceScope != null)
-                {
-                    var serviceProvider = serviceScope.ServiceProvider;
                     await RunDbMigrations(serviceScope.ServiceProvider);
-                }
             }
 
             await host.RunAsync();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args)
+        private static IHostBuilder CreateHostBuilder(string[] args)
         {
             return Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
