@@ -1,6 +1,6 @@
-﻿using System.Threading.Tasks;
-using Services.Common;
+﻿using Services.Common;
 using Services.Transactions.Models;
+using System.Threading.Tasks;
 
 namespace Services.Transactions.Interfaces
 {

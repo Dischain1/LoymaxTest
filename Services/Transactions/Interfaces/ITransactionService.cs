@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
-using Services.Transactions.Models;
+﻿using Services.Transactions.Models;
+using System.Threading.Tasks;
 
 namespace Services.Transactions.Interfaces
 {

@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
-using Services.Accounts.Models;
+﻿using Services.Accounts.Models;
+using System.Threading.Tasks;
 
 namespace Services.Accounts.Interfaces
 {

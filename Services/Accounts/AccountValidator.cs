@@ -1,7 +1,7 @@
-﻿using System;
-using Services.Accounts.Interfaces;
+﻿using Services.Accounts.Interfaces;
 using Services.Accounts.Models;
 using Services.Common;
+using System;
 
 namespace Services.Accounts
 {

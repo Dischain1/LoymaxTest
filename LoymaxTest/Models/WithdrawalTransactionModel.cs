@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Services.Common;
+﻿using Services.Common;
+using System.ComponentModel.DataAnnotations;
 
 namespace LoymaxTest.Models
 {

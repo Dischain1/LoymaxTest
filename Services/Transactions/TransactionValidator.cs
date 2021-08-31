@@ -1,9 +1,9 @@
-﻿using System.Threading.Tasks;
-using Data.Enums;
+﻿using Data.Enums;
 using Services.Accounts.Interfaces;
 using Services.Common;
 using Services.Transactions.Interfaces;
 using Services.Transactions.Models;
+using System.Threading.Tasks;
 
 namespace Services.Transactions
 {

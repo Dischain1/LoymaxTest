@@ -1,4 +1,4 @@
-﻿using Data.Enums;
+﻿using AutoMapper;
 using LoymaxTest.Helpers;
 using LoymaxTest.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Services.Transactions.Interfaces;
 using Services.Transactions.Models;
 using System.Threading.Tasks;
-using AutoMapper;
 
 namespace LoymaxTest.Controllers
 {
@@ -42,11 +41,6 @@ namespace LoymaxTest.Controllers
 
             var newTransactionDto = _mapper.Map<AddTransactionDto>(deposit);
 
-            //var newTransactionDto = new AddTransactionDto(
-            //    accountId: deposit.AccountId,
-            //    amount: deposit.Deposit,
-            //    type: TransactionType.Deposit);
-
             var validationResult = await _transactionService.SaveTransaction(newTransactionDto);
             if (!validationResult.Succeeded)
                 _logger.LogError($"Error occurred on posting Deposit. {validationResult.Errors}");
@@ -66,11 +60,6 @@ namespace LoymaxTest.Controllers
             }
 
             var newTransactionDto = _mapper.Map<AddTransactionDto>(withdrawal);
-
-            //var newTransactionDto = new AddTransactionDto(
-            //   accountId: withdrawal.AccountId,
-            //   amount: withdrawal.Withdrawal,
-            //   type: TransactionType.Withdrawal);
 
             var validationResult = await _transactionService.SaveTransaction(newTransactionDto);
             if (!validationResult.Succeeded)
