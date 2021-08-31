@@ -9,22 +9,21 @@ using Services.Transactions.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Sdk;
 
 namespace XUnitTests
 {
     public class MultiThreadMultipleTransactionsTest : UnitTestsWithInMemoryDb
     {
         // Emulating usage of scoped Context like in Controller
-        private ITransactionService TransactionService
+        private ITransactionService CreateTransactionService()
         {
-            get
-            {
-                var newContext = CreateLoymaxTestContext();
-                var accountService = new AccountService(newContext);
-                return new TransactionService(newContext, new TransactionValidator(accountService));
-            }
+            var newContext = CreateLoymaxTestContext();
+            var accountService = new AccountService(newContext);
+            return new TransactionService(newContext, new TransactionValidator(accountService));
         }
 
         private static readonly IRandomizerString FirstNameGenerator;
@@ -47,26 +46,32 @@ namespace XUnitTests
             Random = new Random();
         }
 
-        [Fact]
-        public async Task TestFromTaskDescription()
+        [Theory]
+        [Repeat(20)]
+        public async Task TestFromTaskDescription(int iterationNumber)
         {
             //        -------------------------------------        Arrange        -------------------------------------
             const int accountsNumber = 50;
             var accountIdsList = await SeedAccounts(accountsNumber);
 
-            // 10 threads operating each user.
-            // In total: 100 Deposits and 100 Withdrawals per user.
-            // For each Deposit\Withdrawal pair the statement "Deposit - Withdrawal = 1" is true.
-            // So expected balance of all users is 100. Expected transaction count is 200.
-            const int threadsPerAccount = 10;
-            var tasks = CreateDepositsAndWithdrawalsTasks(accountIdsList, threadsPerAccount);
-
 
             //        -------------------------------------        Act        -------------------------------------
-            foreach (var task in tasks)
-                task.Start();
+            Parallel.ForEach(accountIdsList, accountId =>
+            {
+                // 10 threads operating each user.
+                // In total: 100 Deposits and 100 Withdrawals per user.
+                // For each Deposit\Withdrawal pair the statement "Deposit - Withdrawal = 1" is true.
+                // So expected balance of all users is 100. Expected transaction count is 200.
+                var tasks = new Task[10];
 
-            await Task.WhenAll(tasks);
+                for (var i = 0; i < 10; i++)
+                {
+                    tasks[i] = new Task(async () => await DoPositiveBalanceDepositWithdrawal(accountId));
+                    tasks[i].Start();
+                }
+
+                Task.WaitAll(tasks);
+            });
 
             var accountService = new AccountService(Context);
             var balances = new List<decimal>();
@@ -106,25 +111,11 @@ namespace XUnitTests
             return accountIdsList;
         }
 
-        private List<Task> CreateDepositsAndWithdrawalsTasks(List<int> accountIdsList, int threadsPerAccount)
-        {
-            var allTasks = new List<Task>();
-            foreach (var accountId in accountIdsList)
-            {
-                var tasks = new Task[threadsPerAccount];
-                for (var i = 0; i < threadsPerAccount; i++)
-                    tasks[i] = new Task(async () => await DoPositiveBalanceDepositWithdrawal(accountId));
-
-                allTasks.AddRange(tasks); // 10 threads per user = 500 threads 
-            }
-
-            return allTasks;
-        }
 
         private async Task DoPositiveBalanceDepositWithdrawal(int accountId)
         {
             const int operationsNumber = 10;
-            for (int i = 0; i < operationsNumber; i++)
+            for (var i = 0; i < operationsNumber; i++)
             {
                 var deposit = Random.Next(1000) + 10;
                 var withdrawal = deposit - 1; // Saving 1.0 every time
@@ -132,8 +123,33 @@ namespace XUnitTests
                 var depositDto = new AddTransactionDto(accountId, deposit, TransactionType.Deposit);
                 var withdrawalDto = new AddTransactionDto(accountId, withdrawal, TransactionType.Withdrawal);
 
-                await TransactionService.SaveTransaction(depositDto);
-                await TransactionService.SaveTransaction(withdrawalDto);
+                await CreateTransactionService().SaveTransaction(depositDto);
+                await CreateTransactionService().SaveTransaction(withdrawalDto);
+            }
+        }
+
+        public sealed class RepeatAttribute : Xunit.Sdk.DataAttribute
+        {
+            private readonly int count;
+
+            public RepeatAttribute(int count)
+            {
+                if (count < 1)
+                {
+                    throw new System.ArgumentOutOfRangeException(
+                        paramName: nameof(count),
+                        message: "Repeat count must be greater than 0."
+                    );
+                }
+                this.count = count;
+            }
+
+            public override System.Collections.Generic.IEnumerable<object[]> GetData(System.Reflection.MethodInfo testMethod)
+            {
+                foreach (var iterationNumber in Enumerable.Range(start: 1, count: this.count))
+                {
+                    yield return new object[] { iterationNumber };
+                }
             }
         }
     }

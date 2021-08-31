@@ -1,11 +1,13 @@
 ﻿using Data;
-using Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Services.Transactions.Interfaces;
 using Services.Transactions.Models;
 using System;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Transactions;
+using Transaction = Data.Models.Transaction;
 
 namespace Services.Transactions
 {
@@ -26,10 +28,17 @@ namespace Services.Transactions
         {
             // Validation and saving Account's deposit\withdrawal should be one EF transaction: 
             // Any new Account's deposits\withdrawals can affect correctness of validation result
-            await using (var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Snapshot))
+            using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions
+            {
+                IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted,
+            }, TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
                 {
+                    var account = _context.Accounts.First();
+                    account.FirstName += "1";
+                    await _context.SaveChangesAsync();
+
                     var validationResult = await _transactionValidator.Validate(transactionDto, isUsedInsideTransaction: true);
 
                     if (!validationResult.Valid)
@@ -46,7 +55,7 @@ namespace Services.Transactions
                     });
 
                     await _context.SaveChangesAsync();
-                    await transaction.CommitAsync();
+                    scope.Complete();
 
                     return AddTransactionResult.SucceededResult();
                 }
