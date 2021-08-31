@@ -1,18 +1,26 @@
-using System;
 using Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using System;
 
 namespace XUnitTests
 {
     public class UnitTestsWithInMemoryDb : IDisposable
     {
-        private readonly Guid _databaseId;
+        private static readonly DbContextOptionsBuilder<LoymaxTestContext> OptionsBuilder;
         protected readonly LoymaxTestContext Context;
+
+        static UnitTestsWithInMemoryDb()
+        {
+            var dataBaseId = Guid.NewGuid();
+            OptionsBuilder = new DbContextOptionsBuilder<LoymaxTestContext>();
+            OptionsBuilder.EnableSensitiveDataLogging();
+            OptionsBuilder.UseInMemoryDatabase(dataBaseId.ToString());
+            OptionsBuilder.ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning));
+        }
 
         protected UnitTestsWithInMemoryDb()
         {
-            _databaseId = Guid.NewGuid();
             Context = CreateLoymaxTestContext();
 
             Context.Database.EnsureDeleted();
@@ -25,14 +33,9 @@ namespace XUnitTests
             Context.Dispose();
         }
 
-        private LoymaxTestContext CreateLoymaxTestContext()
+        protected static LoymaxTestContext CreateLoymaxTestContext()
         {
-            var optionsBuilder = new DbContextOptionsBuilder<LoymaxTestContext>();
-            optionsBuilder.EnableSensitiveDataLogging();
-            optionsBuilder.UseInMemoryDatabase(_databaseId.ToString());
-            optionsBuilder.ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning));
-
-            return new LoymaxTestContext(optionsBuilder.Options);
+            return new LoymaxTestContext(OptionsBuilder.Options);
         }
     }
 }
