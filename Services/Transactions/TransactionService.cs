@@ -26,14 +26,16 @@ namespace Services.Transactions
         {
             // Validation and saving Account's deposit\withdrawal should be one EF transaction: 
             // Any new Account's deposits\withdrawals can affect correctness of validation result
-            await using (var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead))
+            await using (var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Snapshot))
             {
                 try
                 {
                     var validationResult = await _transactionValidator.Validate(transactionDto, isUsedInsideTransaction: true);
 
                     if (!validationResult.Valid)
+                    {
                         return AddTransactionResult.FailedResult(validationResult.Errors);
+                    }
 
                     _context.Transactions.Add(new Transaction
                     {
