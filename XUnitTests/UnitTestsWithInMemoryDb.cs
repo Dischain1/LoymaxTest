@@ -22,7 +22,6 @@ namespace XUnitTests
         protected UnitTestsWithInMemoryDb()
         {
             Context = CreateLoymaxTestContext();
-
             Context.Database.EnsureDeleted();
             Context.Database.EnsureCreated();
         }

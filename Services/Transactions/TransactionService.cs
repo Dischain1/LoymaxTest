@@ -1,12 +1,9 @@
 ﻿using Data;
-using Microsoft.EntityFrameworkCore;
+using Ryadel.Components.Threading;
 using Services.Transactions.Interfaces;
 using Services.Transactions.Models;
 using System;
-using System.Data;
-using System.Linq;
 using System.Threading.Tasks;
-using System.Transactions;
 using Transaction = Data.Models.Transaction;
 
 namespace Services.Transactions
@@ -16,6 +13,8 @@ namespace Services.Transactions
         private readonly LoymaxTestContext _context;
         private readonly ITransactionValidator _transactionValidator;
 
+        private static readonly LockProvider<int> LockProvider = new LockProvider<int>();
+
         public TransactionService(LoymaxTestContext context,
             ITransactionValidator transactionValidator
             )
@@ -24,45 +23,51 @@ namespace Services.Transactions
             _transactionValidator = transactionValidator;
         }
 
-        public async Task<AddTransactionResult> SaveTransaction(AddTransactionDto transactionDto)
+        public async Task<AddTransactionResult> SaveTransactionLockedByAccountId(AddTransactionDto transactionDto)
         {
-            // Validation and saving Account's deposit\withdrawal should be one EF transaction: 
-            // Any new Account's deposits\withdrawals can affect correctness of validation result
-            using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions
+            // lock for current account Id only
+            await LockProvider.WaitAsync(transactionDto.AccountId);
+
+            try
             {
-                IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted,
-            }, TransactionScopeAsyncFlowOption.Enabled))
+                var addTransactionResult = await SaveTransaction(transactionDto);
+                return addTransactionResult;
+            }
+            finally
             {
-                try
+                // release the lock
+                LockProvider.Release(transactionDto.AccountId);
+            }
+        }
+
+        private async Task<AddTransactionResult> SaveTransaction(AddTransactionDto transactionDto)
+        {
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var validationResult = await _transactionValidator.Validate(transactionDto, isUsedInsideTransaction: true);
+
+                if (!validationResult.Valid)
                 {
-                    var account = _context.Accounts.First();
-                    account.FirstName += "1";
-                    await _context.SaveChangesAsync();
-
-                    var validationResult = await _transactionValidator.Validate(transactionDto, isUsedInsideTransaction: true);
-
-                    if (!validationResult.Valid)
-                    {
-                        return AddTransactionResult.FailedResult(validationResult.Errors);
-                    }
-
-                    _context.Transactions.Add(new Transaction
-                    {
-                        Type = (int)transactionDto.Type,
-                        AccountId = transactionDto.AccountId,
-                        Amount = transactionDto.Amount,
-                        Date = DateTime.Now
-                    });
-
-                    await _context.SaveChangesAsync();
-                    scope.Complete();
-
-                    return AddTransactionResult.SucceededResult();
+                    return AddTransactionResult.FailedResult(validationResult.Errors);
                 }
-                catch (Exception exception)
+
+                _context.Transactions.Add(new Transaction
                 {
-                    return AddTransactionResult.FailedResult(exception.Message);
-                }
+                    Type = (int)transactionDto.Type,
+                    AccountId = transactionDto.AccountId,
+                    Amount = transactionDto.Amount,
+                    Date = DateTime.Now
+                });
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return AddTransactionResult.SucceededResult();
+            }
+            catch (Exception exception)
+            {
+                return AddTransactionResult.FailedResult(exception.Message);
             }
         }
     }

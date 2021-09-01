@@ -46,7 +46,7 @@ namespace Services.Transactions
                         var depositLimitExceeded = $"Withdrawal limit exceeded. Withdrawal: {transactionAddDto.Amount}, Withdrawal limit: {CommonConstants.WithdrawalLimit}.";
                         return ValidationResult.NotValidResult(depositLimitExceeded);
                     }
-                    var currentBalance = await _accountService.CalculateBalance(transactionAddDto.AccountId, isUsedInsideTransaction: isUsedInsideTransaction);
+                    var currentBalance = await _accountService.CalculateBalanceInMemory(transactionAddDto.AccountId);
                     var insufficientFunds = currentBalance - transactionAddDto.Amount < 0;
                     if (insufficientFunds)
                     {
