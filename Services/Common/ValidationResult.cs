@@ -23,7 +23,6 @@ namespace Services.Common
         public static ValidationResult ValidResult() => new ValidationResult();
         public static ValidationResult NotValidResult(string error) => new ValidationResult(error);
 
-
         public ValidationResult AddError(string error)
         {
             _errors.Add(error);

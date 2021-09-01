@@ -7,7 +7,7 @@ namespace Services.Accounts
 {
     public class AccountValidator : IAccountValidator
     {
-        private readonly DateTime _latestDateOfBirthRestricted = DateTime.Now.Date.AddYears(CommonConstants.MinimalUserAgeInYears);
+        private readonly DateTime _latestDateOfBirthRestricted = DateTime.Now.Date.AddYears(-CommonConstants.MinimalUserAgeInYears);
 
         public ValidationResult Validate(AddAccountDto addAccountDto)
         {

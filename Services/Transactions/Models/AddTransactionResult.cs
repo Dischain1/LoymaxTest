@@ -1,16 +1,12 @@
-﻿namespace Services.Transactions.Models
+﻿using Services.Common;
+
+namespace Services.Transactions.Models
 {
-    public class AddTransactionResult
+    public class AddTransactionResult : PostActionResult
     {
-        public bool Succeeded => string.IsNullOrWhiteSpace(Errors);
-        public string Errors { get; }
+        private AddTransactionResult()  { }
 
-        private AddTransactionResult() { }
-
-        private AddTransactionResult(string error)
-        {
-            Errors = error;
-        }
+        private AddTransactionResult(string error) : base(error) { }
 
         public static AddTransactionResult FailedResult(string errors)
         {
