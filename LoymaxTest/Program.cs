@@ -12,8 +12,6 @@ namespace LoymaxTest
     {
         public static async Task Main(string[] args)
         {
-            HibernatingRhinos.Profiler.Appender.EntityFramework.EntityFrameworkProfiler.Initialize();
-
             var host = CreateHostBuilder(args).Build();
 
             using (var serviceScope = host.Services.GetService<IServiceScopeFactory>()?.CreateScope())
