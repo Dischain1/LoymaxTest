@@ -70,7 +70,6 @@ namespace XUnitTests
             foreach (var task in allTasks.OrderBy(a => Rng.Next())) 
                 task.Start();
             Task.WaitAll(allTasks.ToArray());
-            Thread.Sleep(100);
 
             // Calculating all balances and saved transactions number for each Account
             var balancesAsSumOfTransactions = new List<decimal>();
