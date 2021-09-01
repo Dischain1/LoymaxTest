@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Xunit;
 
 namespace XUnitTests
@@ -30,6 +31,7 @@ namespace XUnitTests
         private static readonly IRandomizerString FirstNameGenerator;
         private static readonly IRandomizerString LastNameGenerator;
         private static readonly IRandomizerDateTime DateOfBirthGenerator;
+        private static readonly Random Rng;
 
         static MultiThreadMultipleTransactionsTest()
         {
@@ -42,41 +44,49 @@ namespace XUnitTests
             });
             FirstNameGenerator = RandomizerFactory.GetRandomizer(new FieldOptionsFirstName());
             LastNameGenerator = RandomizerFactory.GetRandomizer(new FieldOptionsLastName());
+            Rng = new Random();
         }
 
         [Fact]
         public async Task TestFromTaskDescription()
         {
             //        -------------------------------------        Arrange        -------------------------------------
+            // Seeding users
             const int accountsNumber = 50;
             var accountIdsList = await SeedAccounts(accountsNumber);
-
-            //        -------------------------------------        Act        -------------------------------------
+            // Generating list of tasks 
             var allTasks = new List<Task>();
             foreach (var accountId in accountIdsList)
             {
                 // 10 threads operating each user.
-                // In total: 50 Deposits and 50 Withdrawals per user.
-                // Deposit = Withdrawal = 100. So expected balance of all users is 0.
+                // In total: 100 Deposits and 100 Withdrawals per user.
+                // Deposit = Withdrawal = 100 ===> Expected balance of all users is 0.
                 for (var i = 0; i < 10; i++)
-                    allTasks.Add(new Task(async () => await DoDepositAndWithdrawal(accountId, timesToRepeat: 5)));
+                    allTasks.Add(new Task(async () => await DoDepositAndWithdrawal(accountId, timesToRepeat: 10)));
             }
 
-            foreach (var task in allTasks) task.Start();
+            //        -------------------------------------        Act        -------------------------------------
+            // Starting all tasks
+            foreach (var task in allTasks.OrderBy(a => Rng.Next())) 
+                task.Start();
             Task.WaitAll(allTasks.ToArray());
-            Thread.Sleep(300);
+            Thread.Sleep(100);
 
-            var balances = new List<decimal>();
+            // Calculating all balances and saved transactions number for each Account
+            var balancesAsSumOfTransactions = new List<decimal>();
+            var balancesInsideAccountsEntities = new List<decimal>();
             var transactionsNumber = new List<int>();
             foreach (var accountId in accountIdsList)
             {
-                balances.Add(await new AccountService(Context).CalculateBalance(accountId));
+                balancesAsSumOfTransactions.Add(await new AccountService(Context).CalculateBalance(accountId));
                 transactionsNumber.Add(await Context.Transactions.CountAsync(x => x.AccountId == accountId));
+                balancesInsideAccountsEntities.Add(await new AccountService(Context).GetBalance(accountId));
             }
 
             //        -------------------------------------        Assert        -------------------------------------
-            Assert.True(balances.TrueForAll(x => x == 0));
-            Assert.True(transactionsNumber.TrueForAll(x => x == 100));
+            Assert.True(balancesAsSumOfTransactions.TrueForAll(x => x == 0));
+            Assert.True(transactionsNumber.TrueForAll(x => x == 200));
+            balancesInsideAccountsEntities.Should().Equal(balancesAsSumOfTransactions);
         }
 
         private async Task<List<int>> SeedAccounts(int accountsNumber)

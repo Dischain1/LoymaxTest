@@ -20,6 +20,14 @@ namespace Services.Accounts
             _context = context;
         }
 
+        public async Task<decimal> GetBalance(int accountId)
+        {
+            return await _context.Accounts
+                .Where(x => x.Id == accountId)
+                .Select(x => x.CurrentBalance)
+                .FirstAsync();
+        }
+
         public async Task<bool> AccountExist(int accountId)
         {
             return await _context.Accounts.AnyAsync(x => x.Id == accountId);

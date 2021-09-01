@@ -3,7 +3,10 @@ using Ryadel.Components.Threading;
 using Services.Transactions.Interfaces;
 using Services.Transactions.Models;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Data.Enums;
+using Microsoft.EntityFrameworkCore;
 using Transaction = Data.Models.Transaction;
 
 namespace Services.Transactions
@@ -45,13 +48,13 @@ namespace Services.Transactions
             await using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
+                // Validate
                 var validationResult = await _transactionValidator.Validate(transactionDto);
 
                 if (!validationResult.Valid)
-                {
                     return AddTransactionResult.FailedResult(validationResult.Errors);
-                }
 
+                // Save Deposit\Withdrawal
                 _context.Transactions.Add(new Transaction
                 {
                     Type = (int)transactionDto.Type,
@@ -59,7 +62,25 @@ namespace Services.Transactions
                     Amount = transactionDto.Amount,
                     Date = DateTime.Now
                 });
+                await _context.SaveChangesAsync();
 
+
+                // Update current balance
+                var account = await _context.Accounts
+                    .Where(x => x.Id == transactionDto.AccountId)
+                    .FirstAsync();
+
+                switch (transactionDto.Type)
+                {
+                    case TransactionType.Deposit:
+                        account.CurrentBalance += transactionDto.Amount;
+                        break;
+                    case TransactionType.Withdrawal:
+                        account.CurrentBalance -= transactionDto.Amount;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
