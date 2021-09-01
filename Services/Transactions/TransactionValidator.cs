@@ -47,10 +47,10 @@ namespace Services.Transactions
                         return ValidationResult.NotValidResult(depositLimitExceeded);
                     }
 
-                    // There are 2 variants of implementation
-                    var currentBalance = await _accountService.CalculateBalanceInMemory(transactionAddDto.AccountId);
-                    //var currentBalance = await _accountService.CalculateBalance(transactionAddDto.AccountId);
-
+                    // There are 3 variants of implementation
+                    // var currentBalance = await _accountService.CalculateBalanceInMemory(transactionAddDto.AccountId);
+                    // var currentBalance = await _accountService.CalculateBalance(transactionAddDto.AccountId);
+                    var currentBalance = await _accountService.GetBalance(transactionAddDto.AccountId);
                     if (currentBalance - transactionAddDto.Amount < 0)
                     {
                         var insufficientFundsError = $"Insufficient funds to withdraw. Balance: {currentBalance}. Withdrawal: {transactionAddDto.Amount}, Account Id:{transactionAddDto.AccountId}.";

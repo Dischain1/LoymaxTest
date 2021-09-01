@@ -8,7 +8,7 @@ namespace Data.Models
     {
         public Account()
         {
-            this.Transactions = new HashSet<Transaction>();
+            Transactions = new HashSet<Transaction>();
         }
 
         [Key]
@@ -27,6 +27,8 @@ namespace Data.Models
         public string Patronymic { get; set; }
 
         public DateTime DateOfBirth { get; set; }
+
+        public decimal CurrentBalance { get; set; }
 
         public virtual ICollection<Transaction> Transactions { get; set; }
     }

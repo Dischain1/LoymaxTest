@@ -21,6 +21,9 @@ namespace Data
                     .HasColumnType("int")
                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                b.Property<decimal>("CurrentBalance")
+                    .HasColumnType("decimal(18,2)");
+
                 b.Property<DateTime>("DateOfBirth")
                     .HasColumnType("datetime2");
 
