@@ -18,7 +18,7 @@ namespace Services.Transactions
 
         // ToDo check decimal scale of 2
         // IF dto.Amount == 10.111111 => It is NOT valid
-        public async Task<ValidationResult> Validate(AddTransactionDto transactionAddDto, bool isUsedInsideTransaction)
+        public async Task<ValidationResult> Validate(AddTransactionDto transactionAddDto)
         {
             var accountExist = await _accountService.AccountExist(transactionAddDto.AccountId);
             if (!accountExist)
@@ -26,7 +26,7 @@ namespace Services.Transactions
 
             if (transactionAddDto.Amount <= 0)
             {
-                var negativeAmountError = $"Provided amount to deposit or withdraw should be positive. Provided value is {transactionAddDto.Amount}";
+                var negativeAmountError = $"Provided amount should be positive. Provided value is {transactionAddDto.Amount}";
                 return ValidationResult.NotValidResult(negativeAmountError);
             }
 
@@ -46,9 +46,12 @@ namespace Services.Transactions
                         var depositLimitExceeded = $"Withdrawal limit exceeded. Withdrawal: {transactionAddDto.Amount}, Withdrawal limit: {CommonConstants.WithdrawalLimit}.";
                         return ValidationResult.NotValidResult(depositLimitExceeded);
                     }
-                    var currentBalance = await _accountService.CalculateBalance(transactionAddDto.AccountId, isUsedInsideTransaction: isUsedInsideTransaction);
-                    var insufficientFunds = currentBalance - transactionAddDto.Amount < 0;
-                    if (insufficientFunds)
+
+                    // There are 2 variants of implementation
+                    var currentBalance = await _accountService.CalculateBalanceInMemory(transactionAddDto.AccountId);
+                    //var currentBalance = await _accountService.CalculateBalance(transactionAddDto.AccountId);
+
+                    if (currentBalance - transactionAddDto.Amount < 0)
                     {
                         var insufficientFundsError = $"Insufficient funds to withdraw. Balance: {currentBalance}. Withdrawal: {transactionAddDto.Amount}, Account Id:{transactionAddDto.AccountId}.";
                         return ValidationResult.NotValidResult(insufficientFundsError);

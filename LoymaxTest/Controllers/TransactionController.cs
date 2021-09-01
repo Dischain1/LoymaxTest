@@ -40,7 +40,7 @@ namespace LoymaxTest.Controllers
 
             var newTransactionDto = _mapper.Map<AddTransactionDto>(deposit);
 
-            var validationResult = await _transactionService.SaveTransaction(newTransactionDto);
+            var validationResult = await _transactionService.SaveTransactionLockedByAccountId(newTransactionDto);
             if (!validationResult.Succeeded)
                 _logger.LogError($"Error occurred on posting Deposit. {validationResult.Errors}");
 
@@ -60,7 +60,7 @@ namespace LoymaxTest.Controllers
 
             var newTransactionDto = _mapper.Map<AddTransactionDto>(withdrawal);
 
-            var validationResult = await _transactionService.SaveTransaction(newTransactionDto);
+            var validationResult = await _transactionService.SaveTransactionLockedByAccountId(newTransactionDto);
             if (!validationResult.Succeeded)
                 _logger.LogError($"Error occurred on posting Withdrawal. {validationResult.Errors}");
 

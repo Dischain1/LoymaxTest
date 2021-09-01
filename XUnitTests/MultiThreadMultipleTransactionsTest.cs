@@ -1,14 +1,17 @@
 using Data.Enums;
+using Microsoft.EntityFrameworkCore;
 using RandomDataGenerator.FieldOptions;
 using RandomDataGenerator.Randomizers;
 using Services.Accounts;
 using Services.Accounts.Models;
+using Services.Common;
 using Services.Transactions;
 using Services.Transactions.Interfaces;
 using Services.Transactions.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -17,34 +20,28 @@ namespace XUnitTests
     public class MultiThreadMultipleTransactionsTest : UnitTestsWithInMemoryDb
     {
         // Emulating usage of scoped Context like in Controller
-        private ITransactionService TransactionService
+        private static ITransactionService CreateTransactionService()
         {
-            get
-            {
-                var newContext = CreateLoymaxTestContext();
-                var accountService = new AccountService(newContext);
-                return new TransactionService(newContext, new TransactionValidator(accountService));
-            }
+            var newContext = CreateLoymaxTestContext();
+            var accountService = new AccountService(newContext);
+            return new TransactionService(newContext, new TransactionValidator(accountService));
         }
 
         private static readonly IRandomizerString FirstNameGenerator;
         private static readonly IRandomizerString LastNameGenerator;
         private static readonly IRandomizerDateTime DateOfBirthGenerator;
-        private static readonly Random Random;
 
         static MultiThreadMultipleTransactionsTest()
         {
             DateOfBirthGenerator = RandomizerFactory.GetRandomizer(new FieldOptionsDateTime
             {
-                From = DateTime.Now.AddYears(-80),
-                To = DateTime.Now.AddYears(-18),
+                From = DateTime.Now.Date.AddYears(-80),
+                To = DateTime.Now.Date.AddYears(-CommonConstants.MinimalUserAgeInYears),
                 IncludeTime = false,
                 UseNullValues = false
             });
             FirstNameGenerator = RandomizerFactory.GetRandomizer(new FieldOptionsFirstName());
             LastNameGenerator = RandomizerFactory.GetRandomizer(new FieldOptionsLastName());
-
-            Random = new Random();
         }
 
         [Fact]
@@ -54,34 +51,32 @@ namespace XUnitTests
             const int accountsNumber = 50;
             var accountIdsList = await SeedAccounts(accountsNumber);
 
-            // 10 threads operating each user.
-            // In total: 100 Deposits and 100 Withdrawals per user.
-            // For each Deposit\Withdrawal pair the statement "Deposit - Withdrawal = 1" is true.
-            // So expected balance of all users is 100. Expected transaction count is 200.
-            const int threadsPerAccount = 10;
-            var tasks = CreateDepositsAndWithdrawalsTasks(accountIdsList, threadsPerAccount);
-
-
             //        -------------------------------------        Act        -------------------------------------
-            foreach (var task in tasks)
-                task.Start();
+            var allTasks = new List<Task>();
+            foreach (var accountId in accountIdsList)
+            {
+                // 10 threads operating each user.
+                // In total: 50 Deposits and 50 Withdrawals per user.
+                // Deposit = Withdrawal = 100. So expected balance of all users is 0.
+                for (var i = 0; i < 10; i++)
+                    allTasks.Add(new Task(async () => await DoDepositAndWithdrawal(accountId, timesToRepeat: 5)));
+            }
 
-            await Task.WhenAll(tasks);
+            foreach (var task in allTasks) task.Start();
+            Task.WaitAll(allTasks.ToArray());
+            Thread.Sleep(300);
 
-            var accountService = new AccountService(Context);
             var balances = new List<decimal>();
             var transactionsNumber = new List<int>();
             foreach (var accountId in accountIdsList)
             {
-                // ToDo wait all
-                balances.Add(await accountService.CalculateBalance(accountId));
-                transactionsNumber.Add(Context.Transactions.Count(x => x.AccountId == accountId));
+                balances.Add(await new AccountService(Context).CalculateBalance(accountId));
+                transactionsNumber.Add(await Context.Transactions.CountAsync(x => x.AccountId == accountId));
             }
 
-
             //        -------------------------------------        Assert        -------------------------------------
-            Assert.True(balances.TrueForAll(x => x == 100));
-            Assert.True(transactionsNumber.TrueForAll(x => x == 200));
+            Assert.True(balances.TrueForAll(x => x == 0));
+            Assert.True(transactionsNumber.TrueForAll(x => x == 100));
         }
 
         private async Task<List<int>> SeedAccounts(int accountsNumber)
@@ -106,34 +101,20 @@ namespace XUnitTests
             return accountIdsList;
         }
 
-        private List<Task> CreateDepositsAndWithdrawalsTasks(List<int> accountIdsList, int threadsPerAccount)
+        private const int DepositAmount = 100;
+        private const int WithdrawalAmount = 100;
+        private async Task DoDepositAndWithdrawal(int accountId, int timesToRepeat)
         {
-            var allTasks = new List<Task>();
-            foreach (var accountId in accountIdsList)
+            for (var i = 0; i < timesToRepeat; i++)
             {
-                var tasks = new Task[threadsPerAccount];
-                for (var i = 0; i < threadsPerAccount; i++)
-                    tasks[i] = new Task(async () => await DoPositiveBalanceDepositWithdrawal(accountId));
-
-                allTasks.AddRange(tasks); // 10 threads per user = 500 threads 
-            }
-
-            return allTasks;
-        }
-
-        private async Task DoPositiveBalanceDepositWithdrawal(int accountId)
-        {
-            const int operationsNumber = 10;
-            for (int i = 0; i < operationsNumber; i++)
-            {
-                var deposit = Random.Next(1000) + 10;
-                var withdrawal = deposit - 1; // Saving 1.0 every time
+                var deposit = DepositAmount;
+                var withdrawal = WithdrawalAmount;
 
                 var depositDto = new AddTransactionDto(accountId, deposit, TransactionType.Deposit);
                 var withdrawalDto = new AddTransactionDto(accountId, withdrawal, TransactionType.Withdrawal);
 
-                await TransactionService.SaveTransaction(depositDto);
-                await TransactionService.SaveTransaction(withdrawalDto);
+                await CreateTransactionService().SaveTransactionLockedByAccountId(depositDto);
+                await CreateTransactionService().SaveTransactionLockedByAccountId(withdrawalDto);
             }
         }
     }

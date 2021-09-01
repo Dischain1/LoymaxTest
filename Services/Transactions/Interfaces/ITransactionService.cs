@@ -5,6 +5,6 @@ namespace Services.Transactions.Interfaces
 {
     public interface ITransactionService
     {
-        public Task<AddTransactionResult> SaveTransaction(AddTransactionDto transactionDto);
+        public Task<AddTransactionResult> SaveTransactionLockedByAccountId(AddTransactionDto transactionDto);
     }
 }
