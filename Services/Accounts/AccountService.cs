@@ -44,15 +44,6 @@ namespace Services.Accounts
 
         public async Task<decimal> CalculateBalance(int accountId, bool isUsedInsideTransaction = false)
         {
-            if (isUsedInsideTransaction)
-                return await CalculateBalanceUsingTotalDepositAndWithdrawalAsync(accountId);
-
-            await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead);
-            return await CalculateBalanceUsingTotalDepositAndWithdrawalAsync(accountId);
-        }
-
-        private async Task<decimal> CalculateBalanceUsingTotalDepositAndWithdrawalAsync(int accountId)
-        {
             var totalDeposit = await _context.Transactions
                 .Where(x => x.AccountId == accountId)
                 .Where(x => x.Type == (int)TransactionType.Deposit)

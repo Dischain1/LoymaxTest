@@ -1,8 +1,10 @@
 using Data.Enums;
+using Microsoft.EntityFrameworkCore;
 using RandomDataGenerator.FieldOptions;
 using RandomDataGenerator.Randomizers;
 using Services.Accounts;
 using Services.Accounts.Models;
+using Services.Common;
 using Services.Transactions;
 using Services.Transactions.Interfaces;
 using Services.Transactions.Models;
@@ -11,8 +13,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Services.Common;
 using Xunit;
 
 namespace XUnitTests
@@ -44,49 +44,39 @@ namespace XUnitTests
             LastNameGenerator = RandomizerFactory.GetRandomizer(new FieldOptionsLastName());
         }
 
-        [Theory]
-        [Repeat(3)]
-        public async Task TestFromTaskDescription(int repeatIteration)
+        [Fact]
+        public async Task TestFromTaskDescription()
         {
             //        -------------------------------------        Arrange        -------------------------------------
             const int accountsNumber = 50;
             var accountIdsList = await SeedAccounts(accountsNumber);
 
-
             //        -------------------------------------        Act        -------------------------------------
-            Parallel.ForEach(accountIdsList, accountId =>
+            var allTasks = new List<Task>();
+            foreach (var accountId in accountIdsList)
             {
                 // 10 threads operating each user.
-                // In total: 100 Deposits and 100 Withdrawals per user.
-                // Each Deposit = Withdrawal = 100.
-                // So expected balance of all users is 0. Expected transaction count is 200.
-                var tasks = new Task[10];
-
+                // In total: 50 Deposits and 50 Withdrawals per user.
+                // Deposit = Withdrawal = 100. So expected balance of all users is 0.
                 for (var i = 0; i < 10; i++)
-                {
-                    tasks[i] = new Task(async () => await DoPositiveBalanceDepositWithdrawal(accountId));
-                    tasks[i].Start();
-                }
+                    allTasks.Add(new Task(async () => await DoDepositAndWithdrawal(accountId, timesToRepeat: 5)));
+            }
 
-                Task.WaitAll(tasks);
-            });
-
-            Thread.Sleep(6000);
+            foreach (var task in allTasks) task.Start();
+            Task.WaitAll(allTasks.ToArray());
+            Thread.Sleep(300);
 
             var balances = new List<decimal>();
             var transactionsNumber = new List<int>();
-            Parallel.ForEach(accountIdsList, async accountId =>
+            foreach (var accountId in accountIdsList)
             {
-                var context = CreateLoymaxTestContext();
-                balances.Add(await new AccountService(context).CalculateBalance(accountId));
-                transactionsNumber.Add(await context.Transactions.CountAsync(x => x.AccountId == accountId));
-            });
-
-            Thread.Sleep(6000);
+                balances.Add(await new AccountService(Context).CalculateBalance(accountId));
+                transactionsNumber.Add(await Context.Transactions.CountAsync(x => x.AccountId == accountId));
+            }
 
             //        -------------------------------------        Assert        -------------------------------------
             Assert.True(balances.TrueForAll(x => x == 0));
-            Assert.True(transactionsNumber.TrueForAll(x => x == 200));
+            Assert.True(transactionsNumber.TrueForAll(x => x == 100));
         }
 
         private async Task<List<int>> SeedAccounts(int accountsNumber)
@@ -113,10 +103,9 @@ namespace XUnitTests
 
         private const int DepositAmount = 100;
         private const int WithdrawalAmount = 100;
-        private async Task DoPositiveBalanceDepositWithdrawal(int accountId)
+        private async Task DoDepositAndWithdrawal(int accountId, int timesToRepeat)
         {
-            const int operationsNumber = 10;
-            for (var i = 0; i < operationsNumber; i++)
+            for (var i = 0; i < timesToRepeat; i++)
             {
                 var deposit = DepositAmount;
                 var withdrawal = WithdrawalAmount;

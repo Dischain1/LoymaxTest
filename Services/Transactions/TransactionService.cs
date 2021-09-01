@@ -26,7 +26,7 @@ namespace Services.Transactions
         public async Task<AddTransactionResult> SaveTransactionLockedByAccountId(AddTransactionDto transactionDto)
         {
             // lock for current account Id only
-            await LockProvider.WaitAsync(transactionDto.AccountId);
+            LockProvider.Wait(transactionDto.AccountId);
 
             try
             {
@@ -45,7 +45,7 @@ namespace Services.Transactions
             await using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                var validationResult = await _transactionValidator.Validate(transactionDto, isUsedInsideTransaction: true);
+                var validationResult = await _transactionValidator.Validate(transactionDto);
 
                 if (!validationResult.Valid)
                 {
