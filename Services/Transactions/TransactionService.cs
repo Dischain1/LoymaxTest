@@ -1,12 +1,12 @@
 ﻿using Data;
-using Ryadel.Components.Threading;
+using Data.Enums;
+using Microsoft.EntityFrameworkCore;
+using Services.Common.LockProvider;
 using Services.Transactions.Interfaces;
 using Services.Transactions.Models;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Data.Enums;
-using Microsoft.EntityFrameworkCore;
 using Transaction = Data.Models.Transaction;
 
 namespace Services.Transactions

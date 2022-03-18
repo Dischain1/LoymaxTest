@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Services.Accounts.Interfaces;
 using Services.Accounts.Models;
 using System;
-using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -50,7 +49,7 @@ namespace Services.Accounts
             return entity.Id;
         }
 
-        public async Task<decimal> CalculateBalance(int accountId, bool isUsedInsideTransaction = false)
+        public async Task<decimal> CalculateBalance(int accountId)
         {
             var totalDeposit = await _context.Transactions
                 .Where(x => x.AccountId == accountId)

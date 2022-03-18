@@ -1,4 +1,5 @@
 using Data.Enums;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using RandomDataGenerator.FieldOptions;
 using RandomDataGenerator.Randomizers;
@@ -11,9 +12,7 @@ using Services.Transactions.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Xunit;
 
 namespace XUnitTests
@@ -62,7 +61,7 @@ namespace XUnitTests
                 // In total: 100 Deposits and 100 Withdrawals per user.
                 // Deposit = Withdrawal = 100 ===> Expected balance of all users is 0.
                 for (var i = 0; i < 10; i++)
-                    allTasks.Add(new Task(async () => await DoDepositAndWithdrawal(accountId, timesToRepeat: 10)));
+                    allTasks.Add(new Task(() => DoDepositAndWithdrawal(accountId, timesToRepeat: 10)));
             }
 
             //        -------------------------------------        Act        -------------------------------------
@@ -112,7 +111,7 @@ namespace XUnitTests
 
         private const int DepositAmount = 100;
         private const int WithdrawalAmount = 100;
-        private async Task DoDepositAndWithdrawal(int accountId, int timesToRepeat)
+        private async void DoDepositAndWithdrawal(int accountId, int timesToRepeat)
         {
             for (var i = 0; i < timesToRepeat; i++)
             {

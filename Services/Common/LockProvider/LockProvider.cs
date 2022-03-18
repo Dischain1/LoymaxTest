@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Ryadel.Components.Threading
+namespace Services.Common.LockProvider
 {
     /// <summary>
     /// A LockProvider based upon the SemaphoreSlim class to selectively lock objects, resources or statement blocks 
@@ -83,7 +83,7 @@ namespace Ryadel.Components.Threading
             if (_semaphore != null)
                 _semaphore.Dispose();
         }
-        public bool HasWaiters { get { return _waiters > 0; } }
+        public bool HasWaiters => _waiters > 0;
     }
 
     public class LazyConcurrentDictionary<TKey, TValue>
