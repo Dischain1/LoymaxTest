@@ -66,7 +66,7 @@ namespace XUnitTests
 
             //        -------------------------------------        Act        -------------------------------------
             // Starting all tasks
-            foreach (var task in allTasks.OrderBy(a => Rng.Next())) 
+            foreach (var task in allTasks.OrderBy(a => Rng.Next()))
                 task.Start();
             Task.WaitAll(allTasks.ToArray());
 

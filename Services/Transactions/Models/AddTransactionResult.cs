@@ -4,7 +4,7 @@ namespace Services.Transactions.Models
 {
     public class AddTransactionResult : PostActionResult
     {
-        private AddTransactionResult()  { }
+        private AddTransactionResult() { }
 
         private AddTransactionResult(string error) : base(error) { }
 
